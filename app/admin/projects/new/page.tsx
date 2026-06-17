@@ -3,7 +3,8 @@ import ProjectCreatorForm from "./ProjectCreatorForm";
 
 export default async function NewProjectPage() {
   const supabase = await createClient();
-  const { data: developers } = await supabase.from('developers').select('*').order('name', { ascending: true });
+  const { data: rawDevelopers } = await supabase.from('developers').select('*').order('name', { ascending: true });
+  const developers = rawDevelopers || [];
 
   return (
     <section style={{ padding: "48px 48px", maxWidth: "1200px" }}>

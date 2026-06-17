@@ -73,7 +73,7 @@ export default async function ProjectsPage() {
         ) : (
           projects.map((project) => {
             const prices = project.configurations.map(
-              (cfg) => cfg.carpetArea * cfg.pricePerSqft
+              (cfg: any) => cfg.carpetArea * cfg.pricePerSqft
             );
             const minPrice = prices.length ? Math.min(...prices) : 0;
             const maxPrice = prices.length ? Math.max(...prices) : 0;
@@ -123,7 +123,7 @@ export default async function ProjectsPage() {
                 </div>
 
                 <div className="mt-6 grid gap-3">
-                  {project.configurations.map((cfg) => (
+                  {project.configurations.map((cfg: any) => (
                     <div
                       key={cfg.id}
                       className="flex flex-wrap items-center justify-between gap-3 rounded-xl shadow-sm bg-admin-card px-4 py-3"

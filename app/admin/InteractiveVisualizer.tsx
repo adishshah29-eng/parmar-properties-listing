@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Developer, Project, Configuration, Inventory, FloorPlan, ProjectImage } from "@prisma/client";
+import { Database } from "@/types/supabase";
+
+type Developer = Database['public']['Tables']['developers']['Row'];
+type Project = Database['public']['Tables']['projects']['Row'];
+type Configuration = Database['public']['Tables']['configurations']['Row'];
+type Inventory = Database['public']['Tables']['inventory']['Row'];
+type FloorPlan = Database['public']['Tables']['floor_plans']['Row'];
+type ProjectImage = Database['public']['Tables']['project_images']['Row'];
 
 interface DeveloperNode extends Developer {
   projects: ProjectNode[];
@@ -9,7 +16,6 @@ interface DeveloperNode extends Developer {
 
 interface ProjectNode extends Project {
   images: ProjectImage[];
-  amenities: string | null; // Changed to string | null as per schema.prisma
   configurations: ConfigurationNode[];
 }
 
@@ -165,7 +171,7 @@ const SystemVisualizer: React.FC<SystemVisualizerProps> = ({ initialDevelopers, 
           <div className="detail-field"><div className="f-label">Carpet Area</div><div className="f-value mono">{cfg.carpetArea.toLocaleString('en-IN')} sq ft</div></div>
           <div className="detail-field"><div className="f-label">Rate (₹ / sq ft)</div><div className="f-value mono">₹{cfg.pricePerSqft.toLocaleString('en-IN')}</div></div> {/* Changed from cfg.rate to cfg.pricePerSqft */}
           <div className="detail-field"><div className="f-label">RERA ID</div><div className="f-value mono">{cfg.reraId || "N/A"}</div></div>
-          <div className="detail-field"><div className="f-label">Possession Date</div><div className="f-value mono">{cfg.possessionDate?.toLocaleDateString('en-IN') || "N/A"}</div></div> {/* Changed to possessionDate and formatted */}
+          <div className="detail-field"><div className="f-label">Possession Date</div><div className="f-value mono">{cfg.possessionDate ? new Date(cfg.possessionDate).toLocaleDateString('en-IN') : "N/A"}</div></div> {/* Changed to possessionDate and formatted */}
           <div className="detail-field"><div className="f-label">Total Price (auto-computed)</div><div className="f-value mono total-price">{fmtINR(total)}</div></div>
         </div>
       </>

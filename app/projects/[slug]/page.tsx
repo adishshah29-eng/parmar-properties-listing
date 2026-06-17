@@ -45,7 +45,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const derivedStatus = getProjectStatus(project.configurations);
 
-  const amenitiesList = project.amenities ? project.amenities.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const amenitiesList = project.amenities ? project.amenities.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
 
   return (
     <div className="body-area" style={{ paddingBottom: "100px", paddingTop: "24px" }}>
@@ -104,7 +104,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div style={{ paddingBottom: "32px", borderBottom: "1px solid var(--border-light)", marginBottom: "32px" }}>
                 <h2 style={{ fontSize: "24px", marginBottom: "24px" }}>What this place offers</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  {amenitiesList.map(a => (
+                  {amenitiesList.map((a: string) => (
                     <div key={a} style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "16px", color: "var(--text-dark)" }}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: "24px", height: "24px", color: "var(--text-dark)" }}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -128,7 +128,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                     </tr>
                   </thead>
                   <tbody>
-                    {project.configurations.map(cfg => {
+                    {project.configurations.map((cfg: any) => {
                       const price = cfg.carpetArea * cfg.pricePerSqft;
                       return (
                         <tr key={cfg.id}>
@@ -143,12 +143,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </div>
             </div>
 
-            {project.configurations.some(c => c.floorPlans.length > 0) && (
+            {project.configurations.some((c: any) => c.floorPlans.length > 0) && (
               <div style={{ marginBottom: "48px" }}>
                 <h2 style={{ fontSize: "24px", marginBottom: "24px" }}>Floor Plans</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "24px" }}>
-                  {project.configurations.map(cfg => (
-                    cfg.floorPlans.map(fp => (
+                  {project.configurations.map((cfg: any) => (
+                    cfg.floorPlans.map((fp: any) => (
                       <a href={fp.url} target="_blank" rel="noopener noreferrer" key={fp.id} style={{ display: "block", background: "#fff", border: "1px solid var(--border-light)", borderRadius: "16px", overflow: "hidden", textDecoration: "none", transition: "transform 0.2s" }}>
                         <div style={{ height: "180px", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", background: "var(--bg-surface)" }}>
                           <img src={fp.url} alt={fp.label} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))" }} />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 function formatInr(value: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -28,7 +29,7 @@ export default async function ProjectsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    import("next/navigation").then(m => m.redirect('/admin/login'));
+    redirect('/admin/login');
   }
   const { data: rawProjects } = await supabase
     .from('projects')

@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import InventoryClient from "./InventoryClient";
+import { redirect } from "next/navigation";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    import("next/navigation").then(m => m.redirect('/admin/login'));
+    redirect('/admin/login');
   }
   const { data: rawProjects } = await supabase
     .from('projects')

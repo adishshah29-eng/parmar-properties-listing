@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 
 @import "tailwindcss";
 
@@ -14,72 +14,96 @@
 }
 
 :root {
-  /* Public Theme */
-  --bg-page: #FFFFFF;
+  /* Public Theme — Coastal Glass */
+  --bg-page: #F2F5F7;          /* Cloud Pearl */
   --bg-card: #FFFFFF;
-  --bg-card-raised: #FFFFFF;
-  --bg-surface: #F7F7F7;
-  
-  --border-light: #EBEBEB;
-  --border-dark: #DDDDDD;
-  
-  --text-dark: #222222;
-  --text-muted: #717171;
-  --text-faint: #B0B0B0;
-  
-  --accent: #FF5A5F;
-  --accent-hover: #E04E53;
-  --accent-bg: #FFF0F0;
-  --accent-badge-text: #FF5A5F;
-  
-  --placeholder-bg: #F7F7F7;
-  --placeholder-icon: #DDDDDD;
+  --bg-surface: #E8EDF0;       /* slightly deeper pearl for section bands */
 
-  --status-ready-bg: #EAF8F7;
-  --status-ready-text: #00A699;
-  --status-uc-bg: #FFF8E6;
-  --status-uc-text: #B27D00;
-  --status-sold-bg: #F7F7F7;
-  --status-sold-text: #717171;
+  --border-light: #DCE4E8;
+  --border-dark: #C3CFD5;
 
-  --success: #00A699;
-  --warning: #FFB400;
+  --text-dark: #14242B;        /* near-ink, not pure black — softer on pearl */
+  --text-muted: #5C7480;
+  --text-faint: #97ABB3;
+
+  --accent: #0E7490;           /* Arctic Teal */
+  --accent-hover: #0B5E74;
+  --accent-light: #38B6D4;     /* for gradients/highlights */
+  --accent-bg: #E3F2F6;
+  --accent-badge-text: #0E7490;
+
+  --status-ready-bg: #E3F2F6;  --status-ready-text: #0E7490;
+  --status-uc-bg: #FFF6E5;     --status-uc-text: #B27D00;
+  --status-sold-bg: #ECEFF1;   --status-sold-text: #5C7480;
+
+  --success: #0E7490;
+  --warning: #B27D00;
   --error: #FF385C;
 
+  /* Glass system */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-border-accent: rgba(14, 116, 144, 0.18);
+  --glass-shadow: 0 8px 32px rgba(20, 36, 43, 0.08);
+  --glass-blur: blur(16px) saturate(180%);
+
   /* Admin Theme - Linear/Notion Inspired */
-  --admin-bg-page: #F7F7F7;
+  --admin-bg-page: #F2F5F7;
   --admin-bg-card: #FFFFFF;
-  --admin-border: #EBEBEB;
-  --admin-text-dark: #222222;
-  --admin-text-muted: #717171;
-  --admin-text-faint: #B0B0B0;
+  --admin-border: #DCE4E8;
+  --admin-text-dark: #14242B;
+  --admin-text-muted: #5C7480;
+  --admin-text-faint: #97ABB3;
 
-  --admin-gold: #222222; 
-  --admin-gold-deep: #000000;
-  --admin-gold-bg: #F7F7F7;
+  --admin-gold: #0E7490; 
+  --admin-gold-deep: #0B5E74;
+  --admin-gold-bg: #E3F2F6;
 
-  --admin-proj-text: #222222;  --admin-proj-bg: #F7F7F7;
-  --admin-cfg-text: #00A699;   --admin-cfg-bg: #EAF8F7;
-  --admin-fp-text: #B27D00;    --admin-fp-bg: #FFF8E6;
-  --admin-inv-text: #717171;   --admin-inv-bg: #F7F7F7;
+  --admin-proj-text: #14242B;  --admin-proj-bg: #F2F5F7;
+  --admin-cfg-text: #0E7490;   --admin-cfg-bg: #E3F2F6;
+  --admin-fp-text: #B27D00;    --admin-fp-bg: #FFF6E5;
+  --admin-inv-text: #5C7480;   --admin-inv-bg: #ECEFF1;
   
-  --admin-blue-deep: #222222;
-  --admin-green: #00A699;
+  --admin-blue-deep: #14242B;
+  --admin-green: #0E7490;
   --admin-red: #FF385C;
-  --admin-orange: #FFB400;
+  --admin-orange: #B27D00;
 }
 
 body {
   background-color: var(--bg-page);
   color: var(--text-dark);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   line-height: 1.6;
 }
 
-h1, h2, h3, h4, h5, h6, .serif {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-weight: 700;
+h1, h2, h3, h4, h5, h6, .serif, .font-fraunces {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 500;
   color: var(--text-dark);
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.95);
+  /* Removed backdrop-filter to optimize scroll performance */
+  border: 1px solid var(--glass-border-accent);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-chip {
+  background: rgba(255, 255, 255, 0.95);
+  /* Removed backdrop filter to improve scrolling performance */
+  border: 1px solid var(--glass-border-accent);
+  border-radius: 999px;
 }
 
 .admin-theme {

@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 import DeveloperForm from "./DeveloperForm";
 
@@ -24,7 +25,7 @@ export default async function DevelopersPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    import("next/navigation").then(m => m.redirect('/admin/login'));
+    redirect('/admin/login');
   }
   const { data: rawDevelopers } = await supabase
     .from('developers')

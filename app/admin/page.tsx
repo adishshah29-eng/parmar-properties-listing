@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import SystemVisualizer from "./InteractiveVisualizer";
 import { Database } from "@/types/supabase";
+import { redirect } from "next/navigation";
 
 type Developer = Database['public']['Tables']['developers']['Row'];
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -34,7 +35,7 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    import("next/navigation").then(m => m.redirect('/admin/login')); // Using dynamic import for redirect to avoid top-level import conflict if any, or just add top-level import
+    redirect('/admin/login');
   }
 
   const [

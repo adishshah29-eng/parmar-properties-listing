@@ -1,73 +1,44 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./components.css";
-import Link from "next/link";
 import AgentationWrapper from "./AgentationWrapper";
-import { createClient } from "@/lib/supabase/server";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { Inter, Fraunces } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Parmar Properties",
   description: "Curated boutique property gallery",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const { data: settings } = await supabase.from('site_settings').select('*').limit(1).single();
-  const waNumber = settings?.whatsappNumber || "919876543210";
-  const contactUrl = buildWhatsAppLink(waNumber, "Parmar Properties");
-
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
       <body>
-        <header className="main">
-          <div className="wrap">
-            <Link href="/" className="logo">
-              <svg viewBox="0 0 32 32" fill="none" style={{ width: "32px", height: "32px" }}>
-                <path d="M16 2L2 12V30H30V12L16 2Z" fill="var(--accent)" />
-                <path d="M16 8L8 14V26H24V14L16 8Z" fill="#FFFFFF" />
-              </svg>
-              Parmar<span>Properties</span>
-            </Link>
-            
-            <nav className="header-nav">
-              <Link href="/">Explore</Link>
-              <Link href="/?view=map">Map View</Link>
-            </nav>
-
-            <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-              <Link href="/admin" style={{ color: "var(--text-muted)", fontSize: "14px", fontWeight: 500, textDecoration: "none" }}>Admin</Link>
-              <a href={contactUrl} target="_blank" rel="noopener noreferrer" className="header-contact-link">
-                Enquire
-              </a>
-            </div>
-          </div>
-        </header>
+        {/* Background Mesh */}
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: -1, background: "var(--bg-page)", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.14, filter: "blur(60px)" }} />
+          <div style={{ position: "absolute", bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.12, filter: "blur(80px)" }} />
+          <div style={{ position: "absolute", top: "40%", right: "20%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.08, filter: "blur(50px)" }} />
+        </div>
 
         {children}
-        
-        <footer className="main">
-          <div className="wrap">
-            <div className="footer-grid">
-              <div className="footer-col">
-                <h4>Parmar Properties</h4>
-                <a href="/">Explore Properties</a>
-                <a href="/?view=map">Map View</a>
-              </div>
-              <div className="footer-col">
-                <h4>Contact</h4>
-                <a href={contactUrl} target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
-              </div>
-            </div>
-            <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: "24px", color: "var(--text-muted)", fontSize: "14px", display: "flex", justifyContent: "space-between" }}>
-              <div>© 2026 Parmar Properties. All rights reserved.</div>
-            </div>
-          </div>
-        </footer>
 
         <AgentationWrapper />
       </body>

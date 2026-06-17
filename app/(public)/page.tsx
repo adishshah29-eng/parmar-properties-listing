@@ -2,7 +2,7 @@ export const revalidate = 3600;
 
 import { createClient } from "@/lib/supabase/server";
 import { getProjectStatus } from "@/lib/project-status";
-import GalleryClient from "./GalleryClient";
+import GalleryClient from "@/app/(public)/GalleryClient";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const params = await searchParams;

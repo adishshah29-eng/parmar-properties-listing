@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createFullProject, ConfigInput, FloorPlanInput, InventoryInput, ProjectImageInput } from "./actions";
+import { createFullProject, ConfigInput, FloorPlanInput, InventoryInput, ProjectImageInput, ProjectDocumentInput } from "./actions";
 import dynamic from "next/dynamic";
 
 const AdminMap = dynamic(() => import("./AdminMap"), { ssr: false });
@@ -40,7 +40,11 @@ export default function ProjectCreatorForm({ developers }: Props) {
   const [projectImages, setProjectImages] = useState<ProjectImageInput[]>([
     { url: "elevation.jpg", label: "Main Elevation" },
     { url: "amenities.jpg", label: "Clubhouse & Pool" },
-    { url: "brochure.pdf", label: "Project Brochure PDF" },
+  ]);
+
+  // Project Documents
+  const [projectDocuments, setProjectDocuments] = useState<ProjectDocumentInput[]>([
+    { url: "brochure.pdf", name: "Project Brochure PDF" },
   ]);
 
   // Configurations
@@ -126,6 +130,23 @@ export default function ProjectCreatorForm({ developers }: Props) {
 
   const removeProjectImage = (index: number) => {
     setProjectImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Document Actions
+  const addProjectDocument = () => {
+    setProjectDocuments((prev) => [...prev, { url: "", name: "" }]);
+  };
+
+  const handleProjectDocumentChange = (index: number, field: keyof ProjectDocumentInput, value: string) => {
+    setProjectDocuments((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const removeProjectDocument = (index: number) => {
+    setProjectDocuments((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Config Actions
@@ -275,6 +296,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
       const result = await createFullProject({
         ...projectDetails,
         images: projectImages,
+        documents: projectDocuments,
         configurations: configs,
         floorPlans,
         inventory,
@@ -532,6 +554,72 @@ export default function ProjectCreatorForm({ developers }: Props) {
                   <button
                     type="button"
                     onClick={() => removeProjectImage(index)}
+                    className="rounded bg-admin-surface border border-gray-100 px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex items-center justify-between gap-4 mt-8 mb-4">
+              <div>
+                <h4 className="text-sm font-bold text-admin-text">Project Documents</h4>
+                <p className="text-xs text-admin-muted mt-0.5">
+                  Add brochures, payment plans, or RERA certificates as downloadable files.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={addProjectDocument}
+                className="rounded-lg border-blue-200 bg-admin-blue/10 px-3 py-1.5 text-xs font-bold text-[#2563eb] hover:bg-admin-blue/20 transition-all"
+              >
+                + Add Document
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {projectDocuments.map((doc, index) => (
+                <div key={index} className="flex gap-3 items-end bg-admin-card/40 border-gray-200 p-3 rounded-xl">
+                  <div className="flex-1 grid gap-3 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-admin-muted">
+                        Document Name
+                      </label>
+                      <input
+                        type="text"
+                        value={doc.name}
+                        onChange={(e) => handleProjectDocumentChange(index, "name", e.target.value)}
+                        placeholder="e.g. Project Brochure"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-admin-muted">
+                        Upload Document
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const fd = new FormData();
+                          fd.append("file", file);
+                          try {
+                            const res = await fetch("/api/upload", { method: "POST", body: fd });
+                            const data = await res.json();
+                            if (data.url) handleProjectDocumentChange(index, "url", data.url);
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}
+                      />
+                      {doc.url && <div className="text-[10px] text-admin-green truncate w-full" title={doc.url}>Uploaded: {doc.url}</div>}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeProjectDocument(index)}
                     className="rounded bg-admin-surface border border-gray-100 px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                   >
                     ✕

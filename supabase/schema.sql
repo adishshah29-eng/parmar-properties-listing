@@ -46,6 +46,15 @@ create table project_images (
   "createdAt" timestamp with time zone default now() not null
 );
 
+-- project_documents
+create table project_documents (
+  id uuid primary key default gen_random_uuid(),
+  "projectId" uuid references projects(id) on delete cascade not null,
+  name text not null,
+  url text not null,
+  "createdAt" timestamp with time zone default now() not null
+);
+
 -- configurations
 create table configurations (
   id uuid primary key default gen_random_uuid(),
@@ -92,6 +101,7 @@ alter table site_settings enable row level security;
 alter table developers enable row level security;
 alter table projects enable row level security;
 alter table project_images enable row level security;
+alter table project_documents enable row level security;
 alter table configurations enable row level security;
 alter table floor_plans enable row level security;
 alter table inventory enable row level security;
@@ -101,6 +111,7 @@ create policy "Public read access for site_settings" on site_settings for select
 create policy "Public read access for developers" on developers for select using (true);
 create policy "Public read access for projects" on projects for select using (true);
 create policy "Public read access for project_images" on project_images for select using (true);
+create policy "Public read access for project_documents" on project_documents for select using (true);
 create policy "Public read access for configurations" on configurations for select using (true);
 create policy "Public read access for floor_plans" on floor_plans for select using (true);
 create policy "Public read access for inventory" on inventory for select using (true);
@@ -110,6 +121,7 @@ create policy "Authenticated full access for site_settings" on site_settings for
 create policy "Authenticated full access for developers" on developers for all to authenticated using (true) with check (true);
 create policy "Authenticated full access for projects" on projects for all to authenticated using (true) with check (true);
 create policy "Authenticated full access for project_images" on project_images for all to authenticated using (true) with check (true);
+create policy "Authenticated full access for project_documents" on project_documents for all to authenticated using (true) with check (true);
 create policy "Authenticated full access for configurations" on configurations for all to authenticated using (true) with check (true);
 create policy "Authenticated full access for floor_plans" on floor_plans for all to authenticated using (true) with check (true);
 create policy "Authenticated full access for inventory" on inventory for all to authenticated using (true) with check (true);

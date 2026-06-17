@@ -4,11 +4,19 @@ import { revalidatePath } from "next/cache";
 
 export async function updateSettings(whatsappNumber: string) {
   const supabase = await createClient();
-  const { data: existing } = await supabase.from('site_settings').select('id').limit(1).maybeSingle();
-  if (existing) {
-    await supabase.from('site_settings').update({ whatsappNumber, updatedAt: new Date().toISOString() }).eq('id', existing.id);
-  } else {
-    await supabase.from('site_settings').insert({ whatsappNumber });
+  try {
+    const { data: existing, error: fetchError } = await supabase.from('site_settings').select('id').limit(1).maybeSingle();
+    if (fetchError) throw new Error(fetchError.message);
+    
+    if (existing) {
+      const { error } = await supabase.from('site_settings').update({ whatsappNumber, updatedAt: new Date().toISOString() }).eq('id', existing.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabase.from('site_settings').insert({ whatsappNumber });
+      if (error) throw new Error(error.message);
+    }
+  } catch (err: any) {
+    throw new Error(`Failed to update settings: ${err.message}`);
   }
   revalidatePath("/", "layout");
 }

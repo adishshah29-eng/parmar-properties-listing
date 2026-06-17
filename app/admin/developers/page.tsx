@@ -22,6 +22,10 @@ async function deleteDeveloper(formData: FormData) {
 
 export default async function DevelopersPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    import("next/navigation").then(m => m.redirect('/admin/login'));
+  }
   const { data: rawDevelopers } = await supabase
     .from('developers')
     .select('*, projects(count)')

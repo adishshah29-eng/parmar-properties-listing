@@ -3,6 +3,10 @@ import InventoryClient from "./InventoryClient";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    import("next/navigation").then(m => m.redirect('/admin/login'));
+  }
   const { data: rawProjects } = await supabase
     .from('projects')
     .select('*, configurations(*, inventory(*))')

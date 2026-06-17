@@ -3,6 +3,36 @@ import { getProjectStatus } from "@/lib/project-status";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { notFound } from "next/navigation";
 import ImageGalleryClient from "./ImageGalleryClient";
+import { Metadata } from "next";
+import Image from "next/image";
+
+export const revalidate = 3600;
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+  const { data: project } = await supabase
+    .from('projects')
+    .select('name, description, images:project_images(url)')
+    .eq('slug', slug)
+    .single();
+
+  if (!project) return { title: "Not Found" };
+
+  const title = `${project.name} | Parmar Properties`;
+  const description = project.description || `Explore ${project.name} by Parmar Properties.`;
+  const ogImage = project.images?.[0]?.url;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: ogImage ? [{ url: ogImage }] : [],
+    }
+  };
+}
 
 function formatInr(value: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -22,6 +52,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       *,
       developer:developers(*),
       images:project_images(*),
+      documents:project_documents(*),
       configurations(
         *,
         floorPlans:floor_plans(*)
@@ -47,8 +78,25 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const amenitiesList = project.amenities ? project.amenities.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: project.name,
+    description: project.description,
+    image: project.images?.[0]?.url || "",
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: project.city,
+      streetAddress: project.location,
+    }
+  };
+
   return (
     <div className="body-area" style={{ paddingBottom: "100px", paddingTop: "24px" }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="wrap">
         
         {/* Header Section */}
@@ -56,7 +104,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
               {project.developer.logoUrl && (
-                <img src={project.developer.logoUrl} alt={project.developer.name} style={{ height: "40px", borderRadius: "8px" }} />
+                <Image src={project.developer.logoUrl} alt={project.developer.name} width={100} height={40} style={{ height: "40px", width: "auto", borderRadius: "8px", objectFit: "contain" }} />
               )}
               <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>
                 {project.developer.name}
@@ -150,14 +198,30 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   {project.configurations.map((cfg: any) => (
                     cfg.floorPlans.map((fp: any) => (
                       <a href={fp.url} target="_blank" rel="noopener noreferrer" key={fp.id} style={{ display: "block", background: "#fff", border: "1px solid var(--border-light)", borderRadius: "16px", overflow: "hidden", textDecoration: "none", transition: "transform 0.2s" }}>
-                        <div style={{ height: "180px", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", background: "var(--bg-surface)" }}>
-                          <img src={fp.url} alt={fp.label} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))" }} />
+                        <div style={{ height: "180px", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px", background: "var(--bg-surface)", position: "relative" }}>
+                          <Image src={fp.url} alt={fp.label} fill style={{ objectFit: "contain", padding: "24px", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.1))" }} />
                         </div>
                         <div style={{ padding: "16px", fontSize: "16px", fontWeight: 600, color: "var(--text-dark)" }}>
                           {cfg.bhk} BHK - {fp.label}
                         </div>
                       </a>
                     ))
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {project.documents && project.documents.length > 0 && (
+              <div style={{ marginBottom: "48px" }}>
+                <h2 style={{ fontSize: "24px", marginBottom: "24px" }}>Project Documents</h2>
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {project.documents.map((doc: any) => (
+                    <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: "16px", padding: "16px", background: "var(--bg-surface)", border: "1px solid var(--border-light)", borderRadius: "16px", textDecoration: "none", color: "var(--text-dark)", transition: "border-color 0.2s" }} className="hover:border-[var(--text-dark)]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: "24px", height: "24px" }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <div style={{ fontWeight: 600 }}>{doc.name}</div>
+                    </a>
                   ))}
                 </div>
               </div>

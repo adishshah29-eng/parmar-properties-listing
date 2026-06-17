@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
 export default function ImageGalleryClient({ images }: { images: any[] }) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -40,10 +41,11 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
               background: "var(--placeholder-bg)"
             }}
           >
-            <img 
+            <Image 
               src={img.url} 
               alt={img.label || `Image ${i+1}`} 
-              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} 
+              fill
+              style={{ objectFit: "cover", transition: "transform 0.4s ease" }} 
               onMouseOver={e => (e.currentTarget.style.transform = "scale(1.03)")}
               onMouseOut={e => (e.currentTarget.style.transform = "scale(1)")}
             />
@@ -71,10 +73,12 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
               &lsaquo;
             </button>
             
-            <img 
+            <Image 
               src={images[lightboxIndex].url} 
               alt={images[lightboxIndex].label || "Gallery Image"}
-              style={{ maxWidth: "calc(100vw - 160px)", maxHeight: "80vh", objectFit: "contain" }} 
+              width={1200}
+              height={800}
+              style={{ maxWidth: "calc(100vw - 160px)", maxHeight: "80vh", objectFit: "contain", width: "auto", height: "auto" }} 
             />
             
             <button 

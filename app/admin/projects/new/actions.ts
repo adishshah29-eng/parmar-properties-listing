@@ -36,6 +36,11 @@ export type ProjectImageInput = {
   label: string;
 };
 
+export type ProjectDocumentInput = {
+  name: string;
+  url: string;
+};
+
 export type ProjectInput = {
   developerId: string;
   name: string;
@@ -48,6 +53,7 @@ export type ProjectInput = {
   latitude: number | null;
   longitude: number | null;
   images: ProjectImageInput[];
+  documents: ProjectDocumentInput[];
   configurations: ConfigInput[];
   floorPlans: FloorPlanInput[];
   inventory: InventoryInput[];
@@ -66,6 +72,7 @@ export async function createFullProject(data: ProjectInput) {
     latitude,
     longitude,
     images,
+    documents,
     configurations,
     floorPlans,
     inventory,
@@ -100,7 +107,6 @@ export async function createFullProject(data: ProjectInput) {
   }
 
   try {
-    // 2. Create Project Images
     const validImages = images.filter(img => img.url.trim()).map((img, i) => ({
       projectId: project.id,
       url: img.url.trim(),
@@ -110,6 +116,17 @@ export async function createFullProject(data: ProjectInput) {
     if (validImages.length > 0) {
       const { error: imgError } = await supabase.from('project_images').insert(validImages);
       if (imgError) throw imgError;
+    }
+
+    // 2.5 Create Project Documents
+    const validDocuments = (documents || []).filter(doc => doc.url.trim()).map(doc => ({
+      projectId: project.id,
+      url: doc.url.trim(),
+      name: doc.name.trim() || 'Document',
+    }));
+    if (validDocuments.length > 0) {
+      const { error: docError } = await supabase.from('project_documents').insert(validDocuments);
+      if (docError) throw docError;
     }
 
     // Temp ID to DB ID mapping for configurations

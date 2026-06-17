@@ -26,6 +26,10 @@ async function deleteProject(formData: FormData) {
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    import("next/navigation").then(m => m.redirect('/admin/login'));
+  }
   const { data: rawProjects } = await supabase
     .from('projects')
     .select(`

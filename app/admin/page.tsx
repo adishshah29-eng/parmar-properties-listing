@@ -32,6 +32,10 @@ interface ConfigurationNode extends Configuration {
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    import("next/navigation").then(m => m.redirect('/admin/login')); // Using dynamic import for redirect to avoid top-level import conflict if any, or just add top-level import
+  }
 
   const [
     { count: developerCount },

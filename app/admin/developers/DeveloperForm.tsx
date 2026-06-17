@@ -7,9 +7,17 @@ export default function DeveloperForm() {
   const [logoUrl, setLogoUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [errorMsg, setErrorMsg] = useState("");
+
   async function handleSubmit(formData: FormData) {
     setLoading(true);
-    await createDeveloper(formData, logoUrl);
+    setErrorMsg("");
+    const res = await createDeveloper(formData, logoUrl);
+    if (res?.error) {
+      setErrorMsg(res.error);
+    } else {
+      // success, handled by form reset if needed, but page revalidates anyway
+    }
     setLoading(false);
   }
 
@@ -58,6 +66,7 @@ export default function DeveloperForm() {
           {loading ? "Creating..." : "Create Developer"}
         </button>
       </div>
+      {errorMsg && <div style={{ fontSize: "14px", color: "var(--admin-red)", marginTop: "8px" }}>{errorMsg}</div>}
     </form>
   );
 }

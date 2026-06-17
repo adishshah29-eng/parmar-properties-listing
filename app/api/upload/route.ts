@@ -18,6 +18,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
+    // Basic file validation
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: "File exceeds 5MB limit" }, { status: 400 });
+    }
+
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "application/pdf"];
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json({ error: "Invalid file type. Only images and PDFs are allowed." }, { status: 400 });
+    }
+
     // Create unique filename
     const ext = file.name.split('.').pop();
     const filename = `${crypto.randomUUID()}.${ext}`;

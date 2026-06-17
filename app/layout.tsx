@@ -59,28 +59,12 @@ export default async function RootLayout({
                 <a href="/?view=map">Map View</a>
               </div>
               <div className="footer-col">
-                <h4>Developers</h4>
-                <a href="/">Top Builders</a>
-                <a href="/">New Launches</a>
-              </div>
-              <div className="footer-col">
-                <h4>Locations</h4>
-                <a href="/">Mumbai</a>
-                <a href="/">Pune</a>
-                <a href="/">Bangalore</a>
-              </div>
-              <div className="footer-col">
                 <h4>Contact</h4>
                 <a href={contactUrl} target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
-                <a href="/">Support</a>
               </div>
             </div>
             <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: "24px", color: "var(--text-muted)", fontSize: "14px", display: "flex", justifyContent: "space-between" }}>
               <div>© 2026 Parmar Properties. All rights reserved.</div>
-              <div style={{ display: "flex", gap: "16px" }}>
-                <a href="/" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Privacy</a>
-                <a href="/" style={{ color: "var(--text-muted)", textDecoration: "none" }}>Terms</a>
-              </div>
             </div>
           </div>
         </footer>

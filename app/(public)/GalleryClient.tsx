@@ -97,7 +97,10 @@ export default function GalleryClient({
             </motion.div>
           ) : (
           projects.map((project) => {
-            const projectImage = project.images?.length > 0 ? project.images[0].url : "";
+            let projectImage = project.images?.length > 0 ? project.images[0].url : "";
+            if (projectImage && !projectImage.startsWith('/') && !projectImage.startsWith('http')) {
+              projectImage = '/' + projectImage;
+            }
             
             let minPrice = Infinity;
             let maxPrice = -Infinity;

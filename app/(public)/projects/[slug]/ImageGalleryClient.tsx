@@ -44,7 +44,7 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
             }}
           >
             <Image 
-              src={img.url} 
+              src={img.url.startsWith('/') || img.url.startsWith('http') ? img.url : '/' + img.url}
               alt={img.label || `Image ${i+1}`} 
               fill
               style={{ objectFit: "cover", transition: "transform 0.4s ease" }} 
@@ -98,7 +98,7 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
                     style={{ position: "absolute", inset: 0 }}
                   >
                     <Image 
-                      src={images[lightboxIndex].url} 
+                      src={images[lightboxIndex].url.startsWith('/') || images[lightboxIndex].url.startsWith('http') ? images[lightboxIndex].url : '/' + images[lightboxIndex].url}
                       alt={images[lightboxIndex].label || "Gallery Image"}
                       fill
                       style={{ objectFit: "contain" }} 

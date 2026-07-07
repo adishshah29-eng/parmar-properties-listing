@@ -493,7 +493,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
           </div>
 
           {/* PROJECT IMAGES & LINKS SECTION */}
-          <div className="border-t border-gray-200 pt-6">
+          <div className="border-t border-border pt-6">
             <div className="flex items-center justify-between gap-4 mb-4">
               <div>
                 <h4 className="text-sm font-bold text-admin-text">Project Images, Files & Links</h4>
@@ -512,7 +512,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
 
             <div className="space-y-3">
               {projectImages.map((img, index) => (
-                <div key={index} className="flex gap-3 items-end bg-admin-card/40 border-gray-200 p-3 rounded-xl">
+                <div key={index} className="flex gap-3 items-end bg-admin-card border-border p-3 rounded-xl">
                   <div className="flex-1 grid gap-3 sm:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-admin-muted">
@@ -554,7 +554,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                   <button
                     type="button"
                     onClick={() => removeProjectImage(index)}
-                    className="rounded bg-admin-surface border border-gray-100 px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                    className="rounded bg-admin-surface border border-border px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                   >
                     ✕
                   </button>
@@ -572,7 +572,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
               <button
                 type="button"
                 onClick={addProjectDocument}
-                className="rounded-lg border-blue-200 bg-admin-blue/10 px-3 py-1.5 text-xs font-bold text-[#2563eb] hover:bg-admin-blue/20 transition-all"
+                className="rounded-lg border-border bg-secondary px-3 py-1.5 text-xs font-bold text-admin-text hover:bg-muted transition-all"
               >
                 + Add Document
               </button>
@@ -580,7 +580,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
 
             <div className="space-y-3">
               {projectDocuments.map((doc, index) => (
-                <div key={index} className="flex gap-3 items-end bg-admin-card/40 border-gray-200 p-3 rounded-xl">
+                <div key={index} className="flex gap-3 items-end bg-admin-card border-border p-3 rounded-xl">
                   <div className="flex-1 grid gap-3 sm:grid-cols-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-admin-muted">
@@ -620,7 +620,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                   <button
                     type="button"
                     onClick={() => removeProjectDocument(index)}
-                    className="rounded bg-admin-surface border border-gray-100 px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                    className="rounded bg-admin-surface border border-border px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                   >
                     ✕
                   </button>
@@ -629,7 +629,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
             </div>
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-gray-200">
+          <div className="flex justify-end pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setCurrentStep("config")}
@@ -665,8 +665,8 @@ export default function ProjectCreatorForm({ developers }: Props) {
               const totalPrice = cfg.carpetArea * cfg.pricePerSqft;
 
               return (
-                <div key={cfg.tempId} className="rounded-xl bg-admin-card shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="flex items-center justify-between gap-4 bg-admin-purple/5 border-b border-gray-200 px-4 py-3">
+                <div key={cfg.tempId} className="rounded-xl bg-admin-card shadow-sm border border-border overflow-hidden">
+                  <div className="flex items-center justify-between gap-4 bg-admin-surface border-b border-border px-4 py-3">
                     <span className="text-xs font-bold text-admin-purple flex items-center gap-2">
                       <span className="flex h-5 w-5 items-center justify-center rounded bg-admin-purple/10 text-[10px]">
                         📐
@@ -676,7 +676,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                     <button
                       type="button"
                       onClick={() => removeConfig(index)}
-                      className="rounded bg-admin-surface border border-gray-100 px-2 py-1 text-[10px] font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                      className="rounded bg-admin-surface border border-border px-2 py-1 text-[10px] font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                     >
                       ✕ Remove
                     </button>
@@ -804,7 +804,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
             </span>
           </div>
 
-          <div className="flex justify-between pt-4 border-t border-gray-200">
+          <div className="flex justify-between pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setCurrentStep("project")}
@@ -840,7 +840,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
 
               return (
                 <div key={cfg.tempId} className="rounded-xl border-emerald-200 bg-admin-card p-5 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-admin-green/10 text-xs">
                         📐
@@ -867,7 +867,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                       <p className="text-xs text-admin-muted italic py-2">No floor plans connected to this configuration.</p>
                     ) : (
                       linkedPlans.map(({ fp, originalIndex }) => (
-                        <div key={originalIndex} className="bg-admin-surface/50 border-gray-100 p-4 rounded-xl grid gap-4 sm:grid-cols-3 items-end">
+                        <div key={originalIndex} className="bg-admin-surface/50 border-border p-4 rounded-xl grid gap-4 sm:grid-cols-3 items-end">
                           <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-admin-muted">
                               Layout Type
@@ -924,7 +924,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                             <button
                               type="button"
                               onClick={() => removeFloorPlan(originalIndex)}
-                              className="rounded bg-admin-surface border border-gray-100 px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                              className="rounded bg-admin-surface border border-border px-2.5 py-2 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                             >
                               ✕
                             </button>
@@ -938,7 +938,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
             })}
           </div>
 
-          <div className="flex justify-between pt-4 border-t border-gray-200">
+          <div className="flex justify-between pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setCurrentStep("config")}
@@ -974,7 +974,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
 
               return (
                 <div key={cfg.tempId} className="rounded-xl border-orange-200 bg-admin-card p-5 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-3">
                     <div className="flex items-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded bg-admin-orange/10 text-xs">
                         🔑
@@ -999,7 +999,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse text-left text-xs text-admin-text">
                       <thead>
-                        <tr className="border-b border-gray-200 text-[9px] font-bold uppercase tracking-wider text-admin-muted font-mono">
+                        <tr className="border-b border-border text-[9px] font-bold uppercase tracking-wider text-admin-muted font-mono">
                           <th className="pb-3 pr-4">Unit No.</th>
                           <th className="pb-3 px-4">Floor</th>
                           <th className="pb-3 px-4">Facing</th>
@@ -1009,7 +1009,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                           <th className="pb-3 pl-4 text-right">Action</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-border">
                         {linkedInventory.length === 0 ? (
                           <tr>
                             <td colSpan={7} className="py-4 text-center text-admin-muted italic">
@@ -1087,7 +1087,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
                                 <button
                                   type="button"
                                   onClick={() => removeInventoryUnit(originalIndex)}
-                                  className="rounded bg-admin-surface border border-gray-100 px-2 py-1 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
+                                  className="rounded bg-admin-surface border border-border px-2 py-1 text-xs font-bold text-admin-muted hover:border-admin-red hover:text-admin-red transition-all"
                                 >
                                   ✕
                                 </button>
@@ -1103,7 +1103,7 @@ export default function ProjectCreatorForm({ developers }: Props) {
             })}
           </div>
 
-          <div className="flex justify-between pt-4 border-t border-gray-200">
+          <div className="flex justify-between pt-4 border-t border-border">
             <button
               type="button"
               onClick={() => setCurrentStep("fp")}

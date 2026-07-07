@@ -2,25 +2,27 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./components.css";
 import AgentationWrapper from "./AgentationWrapper";
-import { Inter, Fraunces } from "next/font/google";
+import { DM_Sans, Playfair_Display } from "next/font/google";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-sans",
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-fraunces",
+  weight: ["400", "500", "600"],
+  variable: "--font-serif",
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Parmar Properties",
-  description: "Curated boutique property gallery",
+  description: "South Mumbai's premier real estate consultancy. Curating exceptional homes since 1994.",
 };
 
 export default function RootLayout({
@@ -29,17 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
       <body>
-        {/* Background Mesh */}
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", zIndex: -1, background: "var(--bg-page)", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-10%", left: "-10%", width: "50vw", height: "50vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.14, filter: "blur(60px)" }} />
-          <div style={{ position: "absolute", bottom: "-10%", right: "-10%", width: "60vw", height: "60vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.12, filter: "blur(80px)" }} />
-          <div style={{ position: "absolute", top: "40%", right: "20%", width: "30vw", height: "30vw", borderRadius: "50%", background: "radial-gradient(circle, var(--accent) 0%, transparent 70%)", opacity: 0.08, filter: "blur(50px)" }} />
-        </div>
-
+        <Navbar />
         {children}
-
+        <Footer />
         <AgentationWrapper />
       </body>
     </html>

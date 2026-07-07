@@ -1,113 +1,173 @@
-
-
 @import "tailwindcss";
 
-@theme {
-  --color-admin-bg: var(--admin-bg-page);
-  --color-admin-surface: var(--admin-bg-card);
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+
+  /* Admin Tailwind colour aliases — map to CSS vars so .admin-theme overrides work */
+  --color-admin-surface: var(--admin-bg-page);
   --color-admin-card: var(--admin-bg-card);
-  --color-admin-border: var(--admin-border);
   --color-admin-text: var(--admin-text-dark);
   --color-admin-muted: var(--admin-text-muted);
   --color-admin-gold: var(--admin-gold);
   --color-admin-red: var(--admin-red);
+  --color-admin-green: var(--admin-green);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 :root {
-  /* Public Theme — Coastal Glass */
-  --bg-page: #F2F5F7;          /* Cloud Pearl */
-  --bg-card: #FFFFFF;
-  --bg-surface: #E8EDF0;       /* slightly deeper pearl for section bands */
+  --font-size: 16px;
 
-  --border-light: #DCE4E8;
-  --border-dark: #C3CFD5;
+  /* Semantic tokens */
+  --background: #F8F5F0;
+  --foreground: #1A1A18;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A18;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A18;
+  --primary: #1B3D2C;
+  --primary-foreground: #F8F5F0;
+  --secondary: #EDE8E1;
+  --secondary-foreground: #1A1A18;
+  --muted: #EDE8E1;
+  --muted-foreground: #6B6560;
+  --accent: #C3A55E;
+  --accent-foreground: #1A1A18;
+  --destructive: #c0392b;
+  --destructive-foreground: #ffffff;
+  --border: rgba(26, 26, 24, 0.1);
+  --input: transparent;
+  --input-background: #F8F5F0;
+  --switch-background: #c5bdb5;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #1B3D2C;
+  --radius: 0.125rem;
 
-  --text-dark: #14242B;        /* near-ink, not pure black — softer on pearl */
-  --text-muted: #5C7480;
-  --text-faint: #97ABB3;
+  /* Legacy public-page vars (used by components.css) */
+  --bg-surface: var(--secondary);
+  --text-dark: var(--foreground);
+  --text-muted: var(--muted-foreground);
+  --border-light: var(--border);
+  --border-dark: rgba(26, 26, 24, 0.25);
+  --accent-hover: #a8893e;
+  --accent-bg: rgba(195, 165, 94, 0.08);
+  --accent-light: rgba(195, 165, 94, 0.35);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.75);
+  --glass-blur: blur(12px);
+  --glass-border: rgba(26, 26, 24, 0.08);
+  --glass-border-accent: rgba(195, 165, 94, 0.2);
+  --placeholder-bg: #EDE8E1;
+  --placeholder-icon: #6B6560;
+  --status-ready-bg: #e8f5ee;
+  --status-ready-text: #1B3D2C;
+  --status-uc-bg: #fdf3e3;
+  --status-uc-text: #a8893e;
 
-  --accent: #0E7490;           /* Arctic Teal */
-  --accent-hover: #0B5E74;
-  --accent-light: #38B6D4;     /* for gradients/highlights */
-  --accent-bg: #E3F2F6;
-  --accent-badge-text: #0E7490;
-
-  --status-ready-bg: #E3F2F6;  --status-ready-text: #0E7490;
-  --status-uc-bg: #FFF6E5;     --status-uc-text: #B27D00;
-  --status-sold-bg: #ECEFF1;   --status-sold-text: #5C7480;
-
-  --success: #0E7490;
-  --warning: #B27D00;
-  --error: #FF385C;
-
-  /* Glass system */
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-bg-strong: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-border-accent: rgba(14, 116, 144, 0.18);
-  --glass-shadow: 0 8px 32px rgba(20, 36, 43, 0.08);
-  --glass-blur: blur(16px) saturate(180%);
-
-  /* Admin Theme - Linear/Notion Inspired */
-  --admin-bg-page: #F2F5F7;
-  --admin-bg-card: #FFFFFF;
-  --admin-border: #DCE4E8;
-  --admin-text-dark: #14242B;
-  --admin-text-muted: #5C7480;
-  --admin-text-faint: #97ABB3;
-
-  --admin-gold: #0E7490; 
-  --admin-gold-deep: #0B5E74;
-  --admin-gold-bg: #E3F2F6;
-
-  --admin-proj-text: #14242B;  --admin-proj-bg: #F2F5F7;
-  --admin-cfg-text: #0E7490;   --admin-cfg-bg: #E3F2F6;
-  --admin-fp-text: #B27D00;    --admin-fp-bg: #FFF6E5;
-  --admin-inv-text: #5C7480;   --admin-inv-bg: #ECEFF1;
-  
-  --admin-blue-deep: #14242B;
-  --admin-green: #0E7490;
-  --admin-red: #FF385C;
-  --admin-orange: #B27D00;
+  /* Admin CSS vars — defaults match the main palette so admin auto-inherits theme */
+  --admin-bg-page: var(--background);
+  --admin-bg-card: var(--card);
+  --admin-border: var(--border);
+  --admin-text-dark: var(--foreground);
+  --admin-text-muted: var(--muted-foreground);
+  --admin-text-faint: var(--muted-foreground);
+  --admin-green: var(--primary);
+  --admin-gold: var(--accent);
+  --admin-red: var(--destructive);
 }
 
-body {
-  background-color: var(--bg-page);
-  color: var(--text-dark);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  line-height: 1.6;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
 }
 
-h1, h2, h3, h4, h5, h6, .serif, .font-fraunces {
-  font-family: var(--font-fraunces), Georgia, serif;
-  font-weight: 500;
-  color: var(--text-dark);
-}
-
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-.glass-strong {
-  background: rgba(255, 255, 255, 0.95);
-  /* Removed backdrop-filter to optimize scroll performance */
-  border: 1px solid var(--glass-border-accent);
-  box-shadow: var(--glass-shadow);
-}
-
-.glass-chip {
-  background: rgba(255, 255, 255, 0.95);
-  /* Removed backdrop filter to improve scrolling performance */
-  border: 1px solid var(--glass-border-accent);
-  border-radius: 999px;
-}
-
+/* .admin-theme scopes any overrides for the admin layout */
 .admin-theme {
-  background-color: var(--admin-bg-page);
-  color: var(--admin-text-dark);
-  font-family: 'Inter', system-ui, sans-serif;
+  --admin-bg-page: var(--background);
+  --admin-bg-card: var(--card);
+  --admin-border: var(--border);
+  --admin-text-dark: var(--foreground);
+  --admin-text-muted: var(--muted-foreground);
+  --admin-text-faint: var(--muted-foreground);
+  --admin-green: var(--primary);
+  --admin-gold: var(--accent);
+  --admin-red: var(--destructive);
 }

@@ -47,7 +47,7 @@ export default async function DevelopersPage() {
           </p>
 
           <div className="mt-6 overflow-hidden rounded-xl shadow-sm bg-admin-card">
-            <div className="grid grid-cols-[1.4fr_0.7fr_0.7fr] gap-3 border-b border-gray-50 bg-admin-card px-4 py-3 text-xs font-bold uppercase tracking-wider text-admin-muted font-mono">
+            <div className="grid grid-cols-[1.4fr_0.7fr_0.7fr] gap-3 border-b border-border bg-admin-card px-4 py-3 text-xs font-bold uppercase tracking-wider text-admin-muted font-mono">
               <div>Name</div>
               <div>Projects</div>
               <div>Actions</div>
@@ -58,7 +58,7 @@ export default async function DevelopersPage() {
               developers.map((developer) => (
                 <div
                   key={developer.id}
-                  className="grid grid-cols-[1.4fr_0.7fr_0.7fr] gap-3 border-b border-gray-50 px-4 py-4 last:border-b-0 text-sm hover:bg-admin-surface transition-all"
+                  className="grid grid-cols-[1.4fr_0.7fr_0.7fr] gap-3 border-b border-border px-4 py-4 last:border-b-0 text-sm hover:bg-admin-surface transition-all"
                 >
                   <div>
                     <p className="font-semibold text-admin-text">{developer.name}</p>

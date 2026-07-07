@@ -16,7 +16,7 @@ export default async function NewProjectPage() {
       </div>
 
       {developers.length === 0 ? (
-        <div className="rounded-2xl border border-gray-100 bg-admin-surface p-6">
+        <div className="rounded-2xl border border-border bg-admin-surface p-6">
           <p className="text-sm text-admin-muted">
             Add a developer first before creating a project.
           </p>

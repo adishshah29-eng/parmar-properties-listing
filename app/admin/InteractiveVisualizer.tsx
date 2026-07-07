@@ -344,9 +344,8 @@ const SystemVisualizer: React.FC<SystemVisualizerProps> = ({ initialDevelopers, 
 
 
   return (
-    <div className="body-area">
-      <div className="wrap">
-        <div className="crumbs">Home &gt; Admin &gt; <b>System Visualizer</b></div>
+    <div>
+      <div className="crumbs">Home &gt; Admin &gt; <b>System Visualizer</b></div>
 
         {/* Stats grid */}
         <div className="stats-grid">
@@ -378,7 +377,7 @@ const SystemVisualizer: React.FC<SystemVisualizerProps> = ({ initialDevelopers, 
             <div className="panel-head">
               <span>Data Hierarchy</span>
               <span className="legend">
-                <span className="legend-dot" style={{ background: "var(--gold)" }} title="Developer"></span>
+                <span className="legend-dot" style={{ background: "var(--admin-gold)" }} title="Developer"></span>
                 <span className="legend-dot" style={{ background: "var(--proj-text)" }} title="Project"></span>
                 <span className="legend-dot" style={{ background: "var(--cfg-text)" }} title="Configuration"></span>
                 <span className="legend-dot" style={{ background: "var(--fp-text)" }} title="Floor Plan"></span>
@@ -396,7 +395,6 @@ const SystemVisualizer: React.FC<SystemVisualizerProps> = ({ initialDevelopers, 
               {renderDetail()}
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

@@ -2,21 +2,46 @@ import { login } from './actions'
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Parmar Properties Admin Panel
-          </p>
+    <div
+      className="min-h-screen flex items-center justify-center bg-background px-4"
+      style={{ fontFamily: "var(--font-sans, sans-serif)" }}
+    >
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="mb-10 text-center">
+          <div className="flex justify-center mb-4">
+            <svg viewBox="0 0 40 40" fill="none" style={{ width: 40, height: 40 }}>
+              <path d="M20 2L2 15V38H38V15L20 2Z" fill="var(--primary)" />
+              <path d="M20 10L10 18V32H30V18L20 10Z" fill="var(--primary-foreground)" />
+            </svg>
+          </div>
+          <div
+            className="font-serif text-2xl font-medium tracking-tight text-foreground"
+            style={{ fontFamily: "var(--font-serif, serif)" }}
+          >
+            PARMAR
+          </div>
+          <div className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground font-sans mt-0.5">
+            Properties · Admin
+          </div>
         </div>
-        <form className="mt-8 space-y-6" action={login}>
-          <div className="-space-y-px rounded-md shadow-sm">
+
+        {/* Card */}
+        <div
+          className="bg-card border border-border p-8"
+          style={{ borderRadius: "2px" }}
+        >
+          <h1 className="text-base font-medium text-foreground mb-6">
+            Sign in to continue
+          </h1>
+
+          <form action={login} className="flex flex-col gap-4">
             <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
+              <label
+                htmlFor="email-address"
+                className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2"
+              >
+                Email
               </label>
               <input
                 id="email-address"
@@ -24,12 +49,17 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                placeholder="Email address"
+                placeholder="admin@example.com"
+                className="w-full bg-background border border-border text-foreground placeholder:text-muted-foreground text-sm px-4 py-3 outline-none focus:border-primary transition-colors"
+                style={{ borderRadius: "2px" }}
               />
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label
+                htmlFor="password"
+                className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2"
+              >
                 Password
               </label>
               <input
@@ -38,21 +68,25 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                placeholder="Password"
+                placeholder="••••••••"
+                className="w-full bg-background border border-border text-foreground placeholder:text-muted-foreground text-sm px-4 py-3 outline-none focus:border-primary transition-colors"
+                style={{ borderRadius: "2px" }}
               />
             </div>
-          </div>
 
-          <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="mt-2 w-full bg-primary text-primary-foreground text-sm font-medium tracking-wide py-3 hover:bg-primary/90 transition-colors"
+              style={{ borderRadius: "2px" }}
             >
-              Sign in
+              Sign In
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Parmar Properties · Restricted access
+        </p>
       </div>
     </div>
   )

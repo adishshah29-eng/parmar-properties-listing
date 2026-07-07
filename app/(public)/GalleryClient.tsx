@@ -1,26 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from 'next/dynamic';
+import PropertyCard from "../components/PropertyCard";
+import { SlidersHorizontal, Map as MapIcon, Grid as GridIcon } from "lucide-react";
 
 const LeafletMap = dynamic(() => import('../components/LeafletMap'), { ssr: false });
-
-function formatInr(value: number) {
-  if (value >= 10000000) {
-    return `₹${(value / 10000000).toLocaleString("en-IN", { maximumFractionDigits: 2 })} Cr`;
-  } else if (value >= 100000) {
-    return `₹${(value / 100000).toLocaleString("en-IN", { maximumFractionDigits: 2 })} L`;
-  }
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 export default function GalleryClient({ 
   projects, cities, developers, currentPage, totalPages, totalCount, initialFilters 
@@ -65,14 +52,14 @@ export default function GalleryClient({
     params.set(key, value);
     params.set("page", "1");
     if (view === "map") params.set("view", "map");
-    router.push(`/?${params.toString()}`);
+    router.push(`/listings?${params.toString()}`);
   };
 
   const setPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
     if (view === "map") params.set("view", "map");
-    router.push(`/?${params.toString()}`);
+    router.push(`/listings?${params.toString()}`);
   };
 
   const handleViewChange = (newView: "gallery" | "map") => {
@@ -80,98 +67,42 @@ export default function GalleryClient({
     const params = new URLSearchParams(searchParams.toString());
     if (newView === "map") params.set("view", "map");
     else params.delete("view");
-    router.push(`/?${params.toString()}`);
+    router.push(`/listings?${params.toString()}`);
   };
 
   const renderProjectGrid = (isSplit = false) => (
     <>
-      <motion.div layout className="gallery-grid" style={{ gridTemplateColumns: isSplit ? "repeat(auto-fill, minmax(280px, 1fr))" : undefined }}>
-        <AnimatePresence mode="popLayout">
-          {projects.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              className="col-span-full py-16 px-5 text-center rounded-3xl glass"
-            >
-              <div className="text-[22px] font-fraunces font-medium m-0 mb-2 text-[var(--text-dark)]">No properties found</div>
-              <div className="text-[var(--text-muted)] text-base">Try adjusting your search filters to find what you're looking for.</div>
-            </motion.div>
-          ) : (
-          projects.map((project) => {
-            let projectImage = project.images?.length > 0 ? project.images[0].url : "";
-            if (projectImage && !projectImage.startsWith('/') && !projectImage.startsWith('http')) {
-              projectImage = '/' + projectImage;
-            }
-            
-            let minPrice = Infinity;
-            let maxPrice = -Infinity;
-            if (project.configurations) {
-              project.configurations.forEach((cfg: any) => {
-                const price = cfg.carpetArea * cfg.pricePerSqft;
-                if (price < minPrice) minPrice = price;
-                if (price > maxPrice) maxPrice = price;
-              });
-            }
- 
-            let priceText = "Price on request";
-            if (minPrice !== Infinity && maxPrice !== -Infinity) {
-              if (minPrice === maxPrice) {
-                priceText = formatInr(minPrice);
-              } else {
-                priceText = `${formatInr(minPrice)} – ${formatInr(maxPrice)}`;
-              }
-            }
-
-            return (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
-                key={project.id}
-              >
-                <Link href={`/projects/${project.slug}`} className="project-card">
-                  <div className="pc-image">
-                    <div className="glass-chip absolute top-4 left-4 z-10 px-3 py-1.5 text-[11px] font-semibold tracking-wide">
-                      {project.derivedStatus.replace(/_/g, " ")}
-                    </div>
-                    {projectImage ? (
-                      <Image src={projectImage} alt={project.name} fill style={{ objectFit: "cover" }} sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
-                    ) : (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M9 12h.01M15 12h.01M9 9h.01M15 9h.01"/></svg>
-                    )}
-                    <div className="glass-chip absolute bottom-4 left-4 z-10 px-3 py-1.5 flex flex-col bg-[var(--glass-bg-strong)] text-[var(--text-dark)]">
-                      <span className="text-[10px] uppercase tracking-wide text-[var(--text-muted)]">Starting at</span>
-                      <span className="font-fraunces text-base font-semibold text-[var(--accent)]">{priceText}</span>
-                    </div>
-                  </div>
-                  <div className="pc-body">
-                    <div className="pc-dev">{project.developer.name}</div>
-                    <div className="pc-title font-fraunces">{project.name}</div>
-                    <div className="pc-location">{project.location}, {project.city}</div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })
+      <div className={`grid gap-4 ${isSplit ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
+        {projects.length === 0 ? (
+          <div className="col-span-full py-16 px-5 text-center border border-border bg-card">
+            <div className="text-[22px] font-serif font-medium m-0 mb-2 text-foreground">No properties found</div>
+            <div className="text-muted-foreground text-sm font-sans">Try adjusting your search filters to find what you're looking for.</div>
+          </div>
+        ) : (
+          projects.map((project) => (
+            <PropertyCard 
+              key={project.id} 
+              project={project} 
+              onClick={() => router.push(`/projects/${project.slug}`)} 
+            />
+          ))
         )}
-        </AnimatePresence>
-      </motion.div>
+      </div>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-4 mt-8 pb-8">
           <button 
             onClick={() => setPage(currentPage - 1)} 
             disabled={currentPage === 1}
-            className={`glass px-6 py-3 rounded-full font-semibold text-[var(--text-dark)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`border border-border px-6 py-3 font-sans text-sm hover:border-primary transition-all ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer bg-card text-foreground"}`}
           >
             Previous
           </button>
-          <span className="glass-chip px-4 py-2 flex items-center justify-center font-semibold text-sm">Page {currentPage} of {totalPages}</span>
+          <span className="px-4 py-2 flex items-center justify-center font-sans text-sm font-medium">Page {currentPage} of {totalPages}</span>
           <button 
             onClick={() => setPage(currentPage + 1)} 
             disabled={currentPage === totalPages}
-            className={`glass px-6 py-3 rounded-full font-semibold text-[var(--text-dark)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={`border border-border px-6 py-3 font-sans text-sm hover:border-primary transition-all ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer bg-card text-foreground"}`}
           >
             Next
           </button>
@@ -181,35 +112,38 @@ export default function GalleryClient({
   );
 
   return (
-    <div className="body-area p-0">
+    <div className="min-h-screen bg-background pt-8">
+      <div className="max-w-7xl mx-auto px-5 md:px-8">
+        <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <h1 className="font-serif text-3xl text-foreground font-medium">All Properties</h1>
+            <span className="text-sm text-muted-foreground font-sans bg-muted px-2 py-1">{totalCount} available</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex border border-border bg-card">
+              <button onClick={() => handleViewChange("gallery")} className={`p-2 transition-colors flex items-center gap-2 px-4 text-sm font-sans ${view === "gallery" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <GridIcon size={14} /> Gallery
+              </button>
+              <button onClick={() => handleViewChange("map")} className={`p-2 transition-colors flex items-center gap-2 px-4 text-sm font-sans ${view === "map" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <MapIcon size={14} /> Map
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div 
-        className="glass-strong sticky z-40 pb-2 border-b border-[var(--border-light)] mb-8 transition-all duration-300 top-0 md:top-[72px]"
+        className="bg-background/95 backdrop-blur-sm sticky z-40 pb-4 border-b border-border mb-8 transition-all duration-300 top-16"
         style={{ 
           transform: scrollVisible ? "translateY(0)" : "translateY(-100%)",
           opacity: scrollVisible ? 1 : 0,
           pointerEvents: scrollVisible ? "auto" : "none"
         }}
       >
-        <div className="wrap pt-3 pb-1">
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
-            <div className="flex items-center gap-3">
-              <h1 className="font-fraunces text-2xl text-[var(--text-dark)] m-0">Find Your Property</h1>
-              <span className="glass-chip px-2.5 py-0.5 text-xs font-semibold text-[var(--text-dark)]">{totalCount} available</span>
-            </div>
-            
-            <div className="flex glass p-0.5 rounded-full border border-[var(--border-light)]">
-              <button onClick={() => handleViewChange("gallery")} className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${view === "gallery" ? "bg-white text-[var(--text-dark)] shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-dark)]"}`}>
-                Gallery
-              </button>
-              <button onClick={() => handleViewChange("map")} className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${view === "map" ? "bg-white text-[var(--text-dark)] shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-dark)]"}`}>
-                Map View
-              </button>
-            </div>
-          </div>
-
-          <div className="collection-filters flex flex-wrap gap-3 pb-1">
+        <div className="max-w-7xl mx-auto px-5 md:px-8">
+          <div className="flex flex-wrap gap-3 items-center">
             <select 
-              className="chip-select bg-[var(--glass-bg-strong)] backdrop-blur-md border border-[var(--glass-border-accent)] rounded-full px-4 py-2 text-[13px] font-medium text-[var(--text-dark)] outline-none h-[36px] cursor-pointer appearance-none pr-8"
+              className="text-sm border border-border px-4 py-2 bg-background text-foreground outline-none cursor-pointer hover:border-primary transition-colors font-sans h-10 appearance-none pr-8"
               value={initialFilters.city}
               onChange={(e) => updateFilters("city", e.target.value)}
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '12px' }}
@@ -219,7 +153,7 @@ export default function GalleryClient({
 
             {developers.length > 2 && (
               <select 
-                className="chip-select bg-[var(--glass-bg-strong)] backdrop-blur-md border border-[var(--glass-border-accent)] rounded-full px-4 py-2 text-[13px] font-medium text-[var(--text-dark)] outline-none h-[36px] cursor-pointer appearance-none pr-8"
+                className="text-sm border border-border px-4 py-2 bg-background text-foreground outline-none cursor-pointer hover:border-primary transition-colors font-sans h-10 appearance-none pr-8"
                 value={initialFilters.developer}
                 onChange={(e) => updateFilters("developer", e.target.value)}
                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '12px' }}
@@ -228,11 +162,11 @@ export default function GalleryClient({
               </select>
             )}
 
-            <div className="collection-chips flex gap-2 overflow-x-auto no-scrollbar items-center">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
               {statuses.map(s => (
                 <button 
                   key={s} 
-                  className={`chip h-[36px] px-4 text-[13px] !py-[6px] ${initialFilters.status === s ? 'active' : ''}`}
+                  className={`px-4 text-xs font-sans border transition-colors h-10 whitespace-nowrap ${initialFilters.status === s ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-foreground hover:border-primary bg-card'}`}
                   onClick={() => updateFilters("status", s)}
                 >
                   {s === "All" ? "All Statuses" : s.replace(/_/g, " ")}
@@ -243,34 +177,35 @@ export default function GalleryClient({
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {view === "map" ? (
-          <motion.div 
-            key="map-view"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="flex flex-col md:flex-row h-[calc(100vh-280px)] border-t border-[var(--border-light)]"
-          >
-            <div className="w-full md:w-1/2 overflow-y-auto p-6 glass">
-              {renderProjectGrid(true)}
-            </div>
-            <div className="w-full md:w-1/2 relative min-h-[400px]">
-              <LeafletMap projects={projects} />
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div 
-            key="gallery-view"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="wrap"
-          >
-            {renderProjectGrid()}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="max-w-7xl mx-auto px-5 md:px-8 pb-16">
+        <AnimatePresence mode="wait">
+          {view === "map" ? (
+            <motion.div 
+              key="map-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="flex flex-col md:flex-row h-[calc(100vh-280px)] border-t border-border"
+            >
+              <div className="w-full md:w-1/2 overflow-y-auto pr-0 md:pr-4 py-6">
+                {renderProjectGrid(true)}
+              </div>
+              <div className="w-full md:w-1/2 relative min-h-[400px]">
+                <LeafletMap projects={projects} />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="gallery-view"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {renderProjectGrid()}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

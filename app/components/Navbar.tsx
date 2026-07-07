@@ -1,13 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Phone, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { scrollY } = useScroll();
+  
+  // Only hide navbar in the hero section of the home page
+  const isHome = pathname === "/";
+  const [isPastHero, setIsPastHero] = useState(false);
+
+  useEffect(() => {
+    if (!isHome) {
+      setIsPastHero(true);
+      return;
+    }
+
+    const updateNavbarVisibility = () => {
+      // 300vh is the height of the hero section
+      const heroHeight = window.innerHeight * 3;
+      setIsPastHero(window.scrollY > heroHeight - 100);
+    };
+
+    window.addEventListener("scroll", updateNavbarVisibility);
+    updateNavbarVisibility();
+
+    return () => window.removeEventListener("scroll", updateNavbarVisibility);
+  }, [isHome]);
 
   const navLinks = [
     { href: "/listings", label: "Listings" },
@@ -15,8 +39,17 @@ export default function Navbar() {
     { href: "/contact", label: "Contact" }
   ];
 
+  if (isHome && !isPastHero) {
+    return null; // Return nothing when in the hero section
+  }
+
   return (
-    <header className="sticky top-0 z-50 bg-background/97 backdrop-blur-sm border-b border-border">
+    <motion.header 
+      initial={isHome ? { y: -100, opacity: 0 } : { y: 0, opacity: 1 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-background/97 backdrop-blur-sm border-b border-border"
+    >
       <div className="max-w-7xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex flex-col leading-none group">
           <span className="font-serif text-[17px] font-medium tracking-tight text-foreground">PARMAR</span>
@@ -61,6 +94,6 @@ export default function Navbar() {
           </Link>
         </div>
       )}
-    </header>
+    </motion.header>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, MapPin, ChevronDown, Search } from "lucide-react";
 import Image from "next/image";
 import { StatusBadge } from "../components/PropertyCard";
+import { HeroScrollContainer } from "../components/HeroScrollContainer";
 
 export const revalidate = 3600;
 
@@ -91,59 +92,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero */}
-      <section className="relative h-[92vh] min-h-[620px] flex flex-col justify-end bg-[#0D1A13]">
-        <img
-          src="https://images.unsplash.com/photo-1679249010086-b8a932c8cafc?w=1920&h=1080&fit=crop&auto=format"
-          alt="Aerial view of South Mumbai"
-          className="absolute inset-0 w-full h-full object-cover opacity-55"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D1A13]/85 via-[#0D1A13]/25 to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-5 md:px-8 pb-14 pt-24 w-full">
-          <p className="text-[#C3A55E] text-[10px] tracking-[0.35em] uppercase mb-5 font-sans">South Mumbai — Curated Residences</p>
-          <h1 className="font-serif text-5xl md:text-6xl lg:text-[72px] text-white leading-[1.04] font-medium mb-8 max-w-2xl">
-            Find Your<br />
-            <em className="not-italic text-[#C3A55E]">Address</em> in<br />
-            South Mumbai
-          </h1>
-
-          <div className="bg-white/97 backdrop-blur mt-2 max-w-3xl flex flex-col md:flex-row shadow-2xl">
-            <div className="flex-1 flex items-center gap-3 px-5 py-3.5 border-b md:border-b-0 md:border-r border-border">
-              <MapPin size={15} className="text-muted-foreground shrink-0" />
-              <input
-                placeholder="Locality — Worli, Malabar Hill…"
-                className="w-full text-sm bg-transparent text-foreground placeholder:text-muted-foreground outline-none font-sans"
-              />
-            </div>
-            <div className="flex-1 flex items-center gap-3 px-5 py-3.5 border-b md:border-b-0 md:border-r border-border">
-              <ChevronDown size={15} className="text-muted-foreground shrink-0" />
-              <select className="w-full text-sm bg-transparent text-foreground outline-none cursor-pointer font-sans appearance-none">
-                <option value="">Budget Range</option>
-                <option>₹5 Cr – ₹10 Cr</option>
-                <option>₹10 Cr – ₹20 Cr</option>
-                <option>₹20 Cr – ₹50 Cr</option>
-                <option>Above ₹50 Cr</option>
-              </select>
-            </div>
-            <div className="flex-1 flex items-center gap-3 px-5 py-3.5 border-b md:border-b-0 md:border-r border-border">
-              <ChevronDown size={15} className="text-muted-foreground shrink-0" />
-              <select className="w-full text-sm bg-transparent text-foreground outline-none cursor-pointer font-sans appearance-none">
-                <option value="">Property Type</option>
-                <option>UNDER_CONSTRUCTION</option>
-                <option>READY_TO_MOVE</option>
-                <option>RESALE</option>
-                <option>NEW_LAUNCH</option>
-              </select>
-            </div>
-            <Link
-              href="/listings"
-              className="bg-primary text-primary-foreground px-7 py-3.5 font-sans font-medium text-sm tracking-wide hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shrink-0"
-            >
-              <Search size={14} /> Search
-            </Link>
-          </div>
-          <p className="mt-4 text-white/40 text-xs font-sans tracking-wide">180+ curated properties across Worli, Malabar Hill, Cuffe Parade & more</p>
-        </div>
-      </section>
+      <HeroScrollContainer>
+        {/* Intentionally left blank as requested */}
+      </HeroScrollContainer>
 
       {/* Category tiles */}
       <section className="bg-muted">

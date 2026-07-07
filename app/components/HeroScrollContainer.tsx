@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import { useScroll } from "framer-motion";
 import { HeroScrollAnimation } from "./HeroScrollAnimation";
 
-export function HeroScrollContainer({ children }: { children: React.ReactNode }) {
+export function HeroScrollContainer({ children }: { children?: React.ReactNode }) {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,

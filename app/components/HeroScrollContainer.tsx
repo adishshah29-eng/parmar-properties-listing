@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
-import { useScroll, motion, useTransform, MotionValue, useSpring } from "framer-motion";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { useScroll, motion, useTransform, MotionValue, useSpring, useMotionValueEvent } from "framer-motion";
 import { HeroScrollAnimation } from "./HeroScrollAnimation";
 
 const BLOCKS = [
@@ -57,27 +57,40 @@ function ScrollWord({
   
   const inputRange = [t1, t2, t3, t4];
 
-  const rotateX = useTransform(
+  const y = useTransform(
     scrollYProgress,
     inputRange,
-    [90, 0, 0, isLast ? 0 : -90]
+    [30, 0, 0, isLast ? 0 : -30]
   );
   
+  const blurAmount = useTransform(
+    scrollYProgress,
+    inputRange,
+    [8, 0, 0, isLast ? 0 : 8]
+  );
+  
+  const filter = useTransform(blurAmount, (v) => `blur(${v}px)`);
+
   const opacity = useTransform(
     scrollYProgress,
     inputRange,
     [0, 1, 1, isLast ? 1 : 0]
   );
 
+  const willChange = useTransform(
+    scrollYProgress,
+    (v) => (v > t1 && v < t4) ? "transform, opacity, filter" : "auto"
+  );
+
   return (
-    <span className="inline-block pb-4 -mb-4 align-top mr-[0.25em]" style={{ perspective: 1200 }}>
+    <span className="inline-block pb-4 -mb-4 align-top mr-[0.25em]">
       <motion.span 
         style={{ 
-          rotateX, 
+          y, 
           opacity, 
+          filter,
           display: "inline-block", 
-          transformOrigin: "50% 50%",
-          willChange: "transform, opacity"
+          willChange
         }}
       >
         {word}
@@ -101,6 +114,21 @@ function ScrollContentBlockItem({
   const start = index * segment;
   const end = start + segment;
   
+  // Culling bounds with 10% segment hysteresis margin
+  const margin = segment * 0.1;
+  const visibleStart = start - segment - margin;
+  const visibleEnd = end + segment + margin;
+  
+  const [isNear, setIsNear] = useState(() => {
+    const initial = scrollYProgress.get();
+    return initial >= visibleStart && initial <= visibleEnd;
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const near = latest >= visibleStart && latest <= visibleEnd;
+    if (near !== isNear) setIsNear(near);
+  });
+
   // Timings
   const fadeInEnd = start + segment * 0.2;
   const fadeOutStart = end - segment * 0.2;
@@ -114,28 +142,40 @@ function ScrollContentBlockItem({
     [0, 1, 1, opacityOut]
   );
 
-  let titleCharCount = 0;
-  const titleWords = block.title.split(" ").map(word => {
-    const offset = titleCharCount;
-    titleCharCount += word.length;
-    return { word, offset };
-  });
+  const titleWords = useMemo(() => {
+    let titleCharCount = 0;
+    return block.title.split(" ").map(word => {
+      const offset = titleCharCount;
+      titleCharCount += word.length;
+      return { word, offset };
+    });
+  }, [block.title]);
 
-  let subtitleCharCount = titleCharCount * 0.35; // Start subtitle flip mid-title
-  const subtitleWords = block.subtitle.split(" ").map(word => {
-    const offset = subtitleCharCount;
-    subtitleCharCount += word.length;
-    return { word, offset };
-  });
+  const subtitleWords = useMemo(() => {
+    let titleChars = block.title.replace(/ /g, "").length;
+    let subtitleCharCount = titleChars * 0.35;
+    return block.subtitle.split(" ").map(word => {
+      const offset = subtitleCharCount;
+      subtitleCharCount += word.length;
+      return { word, offset };
+    });
+  }, [block.title, block.subtitle]);
+
+  const isEven = index % 2 === 0;
+
+  if (!isNear) return null;
 
   return (
     <motion.div
       style={{ opacity }}
-      className="absolute flex flex-col items-center text-center px-6 w-full max-w-5xl"
+      className={`absolute flex flex-col px-6 md:px-12 w-full max-w-7xl ${isEven ? 'items-start text-left' : 'items-end text-right'}`}
     >
-      {/* Title 3D Flip */}
+      {/* Title */}
       <div className="mb-4">
-        <h2 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white font-medium leading-tight mix-blend-difference flex flex-wrap justify-center gap-y-2">
+        <h2 
+          className={`font-serif text-4xl md:text-6xl lg:text-7xl text-white font-medium leading-tight flex flex-wrap gap-y-2 ${isEven ? 'justify-start' : 'justify-end'}`}
+          style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
+        >
           {titleWords.map((item, wIndex) => (
             <ScrollWord 
               key={wIndex}
@@ -156,9 +196,12 @@ function ScrollContentBlockItem({
       {/* Spacer */}
       <div className="h-4" />
 
-      {/* Subtitle 3D Flip */}
+      {/* Subtitle */}
       <div>
-        <p className="font-sans text-sm md:text-xl text-[#b59e7e] tracking-[0.05em] font-medium mix-blend-difference flex flex-wrap justify-center gap-y-1">
+        <p 
+          className={`font-sans text-sm md:text-xl text-[#b59e7e] tracking-[0.05em] font-medium flex flex-wrap gap-y-1 ${isEven ? 'justify-start' : 'justify-end'}`}
+          style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
+        >
           {subtitleWords.map((item, wIndex) => (
             <ScrollWord 
               key={wIndex}
@@ -180,9 +223,22 @@ function ScrollContentBlockItem({
 }
 
 function ScrollContentLayer({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  const layerRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const node = layerRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setVisible(entry.isIntersecting);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-      {BLOCKS.map((block, index) => (
+    <div ref={layerRef} className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+      {visible && BLOCKS.map((block, index) => (
         <ScrollContentBlockItem
           key={index}
           block={block}
@@ -223,7 +279,7 @@ export function HeroScrollContainer({ children }: { children?: React.ReactNode }
         style={{ scale, borderRadius }}
         className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end transform-gpu"
       >
-        <HeroScrollAnimation scrollYProgress={scrollYProgress} totalFrames={240} />
+        <HeroScrollAnimation scrollYProgress={rawProgress} totalFrames={240} />
         
         {/* Cinematic Film Grain Overlay (Option 3) */}
         <div className="absolute inset-0 bg-noise z-10" />

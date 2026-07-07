@@ -44,30 +44,30 @@
 :root {
   --font-size: 16px;
 
-  /* Semantic tokens */
-  --background: #F8F5F0;
-  --foreground: #1A1A18;
+  /* Semantic tokens from Brand Book */
+  --background: #FFFFFF; /* Pure White */
+  --foreground: #000000; /* Jet Black */
   --card: #FFFFFF;
-  --card-foreground: #1A1A18;
+  --card-foreground: #000000;
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A18;
-  --primary: #1B3D2C;
-  --primary-foreground: #F8F5F0;
-  --secondary: #EDE8E1;
-  --secondary-foreground: #1A1A18;
-  --muted: #EDE8E1;
-  --muted-foreground: #6B6560;
-  --accent: #C3A55E;
-  --accent-foreground: #1A1A18;
+  --popover-foreground: #000000;
+  --primary: #000000; /* Jet Black */
+  --primary-foreground: #FFFFFF; /* Pure White */
+  --secondary: #F8F7F4; /* Chalk White */
+  --secondary-foreground: #000000;
+  --muted: #F8F7F4; /* Chalk White */
+  --muted-foreground: #6B6560; /* Keep a grey for contrast, or use a lighter black */
+  --accent: #B59E7E; /* Hay Gold */
+  --accent-foreground: #000000;
   --destructive: #c0392b;
   --destructive-foreground: #ffffff;
-  --border: rgba(26, 26, 24, 0.1);
+  --border: rgba(0, 0, 0, 0.1);
   --input: transparent;
-  --input-background: #F8F5F0;
+  --input-background: #F8F7F4;
   --switch-background: #c5bdb5;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #1B3D2C;
+  --ring: #000000;
   --radius: 0.125rem;
 
   /* Legacy public-page vars (used by components.css) */
@@ -75,21 +75,21 @@
   --text-dark: var(--foreground);
   --text-muted: var(--muted-foreground);
   --border-light: var(--border);
-  --border-dark: rgba(26, 26, 24, 0.25);
-  --accent-hover: #a8893e;
-  --accent-bg: rgba(195, 165, 94, 0.08);
-  --accent-light: rgba(195, 165, 94, 0.35);
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-strong: rgba(255, 255, 255, 0.75);
+  --border-dark: rgba(0, 0, 0, 0.25);
+  --accent-hover: #9e8a6d;
+  --accent-bg: rgba(181, 158, 126, 0.08);
+  --accent-light: rgba(181, 158, 126, 0.35);
+  --glass-bg: rgba(248, 247, 244, 0.55);
+  --glass-bg-strong: rgba(248, 247, 244, 0.75);
   --glass-blur: blur(12px);
-  --glass-border: rgba(26, 26, 24, 0.08);
-  --glass-border-accent: rgba(195, 165, 94, 0.2);
-  --placeholder-bg: #EDE8E1;
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-accent: rgba(181, 158, 126, 0.2);
+  --placeholder-bg: #F8F7F4;
   --placeholder-icon: #6B6560;
-  --status-ready-bg: #e8f5ee;
-  --status-ready-text: #1B3D2C;
+  --status-ready-bg: #f8f7f4;
+  --status-ready-text: #000000;
   --status-uc-bg: #fdf3e3;
-  --status-uc-text: #a8893e;
+  --status-uc-text: #b59e7e;
 
   /* Admin CSS vars — defaults match the main palette so admin auto-inherits theme */
   --admin-bg-page: var(--background);
@@ -170,4 +170,13 @@
   --admin-green: var(--primary);
   --admin-gold: var(--accent);
   --admin-red: var(--destructive);
+}
+
+@layer utilities {
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
 }

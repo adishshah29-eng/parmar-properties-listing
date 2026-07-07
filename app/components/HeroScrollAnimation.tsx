@@ -6,11 +6,13 @@ import { MotionValue, useMotionValueEvent } from "framer-motion";
 interface HeroScrollAnimationProps {
   scrollYProgress: MotionValue<number>;
   totalFrames?: number;
+  holdFrames?: number;
 }
 
 export function HeroScrollAnimation({
   scrollYProgress,
   totalFrames = 240,
+  holdFrames = 30,
 }: HeroScrollAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -18,24 +20,25 @@ export function HeroScrollAnimation({
 
   useEffect(() => {
     // Preload all frames
+    const isMobile = window.innerWidth < 768;
+    const basePath = isMobile ? "/frames_mobile" : "/frames_desktop";
+
     let loadedCount = 0;
     const images: HTMLImageElement[] = [];
 
     for (let i = 1; i <= totalFrames; i++) {
       const img = new window.Image();
       const paddedIndex = i.toString().padStart(3, "0");
-      img.src = `/frames/ezgif-frame-${paddedIndex}.jpg`;
+      img.src = `${basePath}/frame-${paddedIndex}.jpg`;
 
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === totalFrames) {
-          setImagesLoaded(true);
-        }
+        if (loadedCount === totalFrames) setImagesLoaded(true);
       };
 
       images.push(img);
     }
-    
+
     imagesRef.current = images;
   }, [totalFrames]);
 
@@ -49,7 +52,10 @@ export function HeroScrollAnimation({
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (!imagesLoaded) return;
     
-    const frameIndex = Math.floor(latest * (totalFrames - 1));
+    const totalWithHold = totalFrames + holdFrames;
+    let frameIndex = Math.floor(latest * (totalWithHold - 1));
+    if (frameIndex >= totalFrames) frameIndex = totalFrames - 1;
+    
     renderFrame(frameIndex);
   });
 
@@ -92,13 +98,16 @@ export function HeroScrollAnimation({
   useEffect(() => {
     const handleResize = () => {
       const latest = scrollYProgress.get();
-      const frameIndex = Math.floor(latest * (totalFrames - 1));
+      const totalWithHold = totalFrames + holdFrames;
+      let frameIndex = Math.floor(latest * (totalWithHold - 1));
+      if (frameIndex >= totalFrames) frameIndex = totalFrames - 1;
+      
       renderFrame(frameIndex);
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [imagesLoaded, totalFrames, scrollYProgress]);
+  }, [imagesLoaded, totalFrames, holdFrames, scrollYProgress]);
 
   return (
     <div className="absolute inset-0 w-full h-full">
@@ -107,7 +116,7 @@ export function HeroScrollAnimation({
         className="w-full h-full"
       />
       {!imagesLoaded && (
-        <div className="absolute inset-0 bg-[#0D1A13]" />
+        <div className="absolute inset-0 bg-[#000000]" />
       )}
     </div>
   );

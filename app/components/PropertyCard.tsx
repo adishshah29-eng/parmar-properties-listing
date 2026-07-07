@@ -9,7 +9,7 @@ const STATUS_COLOR: Record<string, string> = {
   "NEW_LAUNCH": "bg-emerald-900 text-emerald-100",
   "READY_TO_MOVE": "bg-sky-800 text-sky-50",
   "RESALE": "bg-amber-800 text-amber-50",
-  "SOLD_OUT": "bg-[#1A1A18] text-[#C3A55E]",
+  "SOLD_OUT": "bg-[#1A1A18] text-[#B59E7E]",
 };
 
 export function StatusBadge({ status }: { status: string }) {

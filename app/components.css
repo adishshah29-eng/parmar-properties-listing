@@ -481,8 +481,10 @@ td {
 
 /* Colour tokens used by the visualizer legend dots */
 :root {
-  --gold: var(--accent);            /* #C3A55E — golden */
-  --proj-text: var(--primary);      /* #1B3D2C — deep green */
+  --gold: var(--accent);            /* #B59E7E — golden */
+  --proj-text: var(--primary);      /* #000000 — jet black */
+  --proj-muted: var(--text-muted);
+  --border-subtle: var(--border-light);
   --cfg-text: #2d6a4f;              /* mid green */
   --fp-text: #6b8f71;               /* soft green */
   --inv-text: var(--muted-foreground); /* grey */

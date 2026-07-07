@@ -151,7 +151,7 @@ export default async function Home() {
                   <p className="text-white/55 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{featured[0].location}, {featured[0].city}</p>
                   <h3 className="font-serif text-2xl text-white font-medium mb-2">{featured[0].name}</h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#C3A55E] font-serif text-xl">{featured[0].priceText}</span>
+                    <span className="text-[#B59E7E] font-serif text-xl">{featured[0].priceText}</span>
                     <span className="text-white/55 text-xs font-sans">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default async function Home() {
                       <p className="text-white/55 text-[10px] tracking-[0.3em] uppercase mb-0.5 font-sans">{p.location}</p>
                       <h3 className="font-serif text-base text-white font-medium">{p.name}</h3>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-[#C3A55E] font-serif">{p.priceText}</span>
+                        <span className="text-[#B59E7E] font-serif">{p.priceText}</span>
                         <span className="text-white/55 text-[10px] font-sans">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
                       </div>
                     </div>
@@ -202,7 +202,7 @@ export default async function Home() {
                 <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
                   <h3 className="font-serif text-xl text-white font-medium">{n.name}</h3>
                   <p className="text-white/55 text-xs mt-0.5 font-sans">{n.tagline}</p>
-                  <p className="text-[#C3A55E] text-xs mt-2 font-sans">{n.count} properties</p>
+                  <p className="text-[#B59E7E] text-xs mt-2 font-sans">{n.count} properties</p>
                 </div>
               </Link>
             ))}
@@ -274,7 +274,7 @@ export default async function Home() {
             {TESTIMONIALS.map((t) => (
               <div key={t.name} className="bg-card border border-border p-8">
                 <div className="flex gap-1 mb-5">
-                  {[...Array(t.rating)].map((_, i) => <div key={i} className="w-2.5 h-2.5 bg-[#C3A55E]" />)}
+                  {[...Array(t.rating)].map((_, i) => <div key={i} className="w-2.5 h-2.5 bg-[#B59E7E]" />)}
                 </div>
                 <blockquote className="font-serif text-base text-foreground leading-relaxed mb-6 italic">"{t.quote}"</blockquote>
                 <div>

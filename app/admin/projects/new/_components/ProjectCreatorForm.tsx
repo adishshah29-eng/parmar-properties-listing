@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createFullProject, ConfigInput, FloorPlanInput, InventoryInput, ProjectImageInput, ProjectDocumentInput } from "./actions";
+import { createFullProject, ConfigInput, FloorPlanInput, InventoryInput, ProjectImageInput, ProjectDocumentInput } from "../actions";
 import dynamic from "next/dynamic";
 
 const AdminMap = dynamic(() => import("./AdminMap"), { ssr: false });

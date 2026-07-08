@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { getProjectStatus } from "@/lib/project-status";
+import { getProjectStatus } from "@/lib/utils/project-status";
 import Link from "next/link";
-import { ArrowRight, Check, MapPin, ChevronDown, Search } from "lucide-react";
+import { ArrowRight, Check, MapPin, ChevronDown, Search, Building2, Key, RefreshCw, Gem } from "lucide-react";
 import Image from "next/image";
-import { StatusBadge } from "../components/PropertyCard";
-import { HeroScrollContainer } from "../components/HeroScrollContainer";
+import { StatusBadge } from "@/components/common/PropertyCard";
+import { HeroScrollContainer } from "@/components/common/HeroScrollContainer";
+import { HomeSearchBar } from "@/components/common/HomeSearchBar";
 
 export const revalidate = 3600;
 
@@ -22,6 +23,14 @@ export default async function Home() {
     `)
     .order('createdAt', { ascending: false })
     .limit(3);
+
+  // Fetch unique cities & developers for the search bar
+  const [{ data: developers }, { data: projectsForCities }] = await Promise.all([
+    supabase.from('developers').select('name').order('name'),
+    supabase.from('projects').select('city')
+  ]);
+  const cities = ["All", ...Array.from(new Set((projectsForCities || []).map(p => p.city)))];
+  const devNames = ["All", ...Array.from(new Set((developers || []).map(d => d.name)))];
 
   const featured = (rawProjects || []).map(p => {
     const sortedImages = [...(p.images || [])].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -77,10 +86,10 @@ export default async function Home() {
   ];
 
   const CATEGORIES = [
-    { id: "under-development", label: "Under Development", count: 32, description: "Early-access pricing on tomorrow's finest addresses" },
-    { id: "ready-to-move", label: "Ready to Move", count: 18, description: "Move in immediately — no waiting, no uncertainty" },
-    { id: "resale", label: "Resale", count: 27, description: "Pre-owned homes with established character and location" },
-    { id: "luxury", label: "Luxury & Ultra-Luxury", count: 9, description: "South Mumbai's most exceptional residences, curated" },
+    { id: "under-development", label: "Under Development", count: 32, icon: <Building2 size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "Early-access pricing on tomorrow's finest addresses" },
+    { id: "ready-to-move", label: "Ready to Move", count: 18, icon: <Key size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "Move in immediately — no waiting, no uncertainty" },
+    { id: "resale", label: "Resale", count: 27, icon: <RefreshCw size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "Pre-owned homes with established character and location" },
+    { id: "luxury", label: "Luxury & Ultra-Luxury", count: 9, icon: <Gem size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "South Mumbai's most exceptional residences, curated" },
   ];
 
   const TESTIMONIALS = [
@@ -96,26 +105,37 @@ export default async function Home() {
         {/* Intentionally left blank as requested */}
       </HeroScrollContainer>
 
+      {/* Search Bar Section */}
+      <HomeSearchBar cities={cities} developers={devNames} />
+
       {/* Category tiles */}
-      <section className="bg-muted">
-        <div className="max-w-7xl mx-auto px-5 md:px-8 py-16">
-          <div className="mb-10">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2 font-sans">Browse by type</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium">Every kind of<br />South Mumbai home</h2>
+      <section className="bg-background relative pt-4 pb-20 md:pb-28">
+        <div className="absolute inset-0 bg-muted/40 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
+          <div className="mb-14 text-center">
+            <p className="text-[11px] tracking-[0.25em] uppercase text-primary/70 mb-3 font-sans font-semibold">Browse by type</p>
+            <h2 className="font-serif text-3xl md:text-5xl text-foreground font-medium tracking-tight">Every kind of<br />South Mumbai home</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 href="/listings"
-                className="group bg-card border border-border p-6 text-left hover:bg-primary hover:border-primary transition-all duration-300 block"
+                className="group relative bg-card/60 backdrop-blur-sm border border-border/60 p-8 rounded-3xl text-left hover:bg-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl overflow-hidden block"
               >
-                <div className="font-serif text-3xl font-medium mb-0.5 group-hover:text-primary-foreground transition-colors">{cat.count}</div>
-                <div className="text-[9px] tracking-[0.3em] uppercase text-muted-foreground group-hover:text-primary-foreground/50 mb-3 font-sans transition-colors">Properties</div>
-                <h3 className="font-serif text-sm font-medium mb-2 leading-snug group-hover:text-primary-foreground transition-colors">{cat.label}</h3>
-                <p className="text-xs text-muted-foreground group-hover:text-primary-foreground/65 leading-relaxed transition-colors">{cat.description}</p>
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-primary group-hover:text-primary-foreground/80 transition-all opacity-0 group-hover:opacity-100">
-                  Browse <ArrowRight size={11} />
+                {/* Subtle gradient hover effect background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                
+                <div className="relative z-10 flex flex-col h-full">
+                  {cat.icon}
+                  <div className="font-serif text-4xl font-medium mb-1 text-foreground transition-colors">{cat.count}</div>
+                  <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-hover:text-primary/70 mb-5 font-sans font-semibold transition-colors">Properties</div>
+                  <h3 className="font-serif text-xl font-medium mb-3 leading-snug group-hover:text-primary transition-colors">{cat.label}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed flex-grow">{cat.description}</p>
+                  
+                  <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-primary transition-all duration-300 opacity-0 transform translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0">
+                    Browse Collection <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </Link>
             ))}

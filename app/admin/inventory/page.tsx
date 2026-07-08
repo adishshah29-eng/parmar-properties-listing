@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import InventoryClient from "./InventoryClient";
+import InventoryClient from "./_components/InventoryClient";
 import { redirect } from "next/navigation";
 
 export default async function InventoryPage() {

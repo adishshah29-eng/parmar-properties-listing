@@ -2,7 +2,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-import DeveloperForm from "./DeveloperForm";
+import DeveloperForm from "./_components/DeveloperForm";
 
 async function deleteDeveloper(formData: FormData) {
   "use server";

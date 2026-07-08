@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { updateSettings } from "./actions";
+import { updateSettings } from "../actions";
 
 export default function SettingsClient() {
   const [waNumber, setWaNumber] = useState("");

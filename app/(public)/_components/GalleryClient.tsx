@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from 'next/dynamic';
-import PropertyCard from "../components/PropertyCard";
+import PropertyCard from "@/components/common/PropertyCard";
 import { SlidersHorizontal, Map as MapIcon, Grid as GridIcon } from "lucide-react";
 
-const LeafletMap = dynamic(() => import('../components/LeafletMap'), { ssr: false });
+const LeafletMap = dynamic(() => import('@/components/common/LeafletMap'), { ssr: false });
 
 export default function GalleryClient({ 
   projects, cities, developers, currentPage, totalPages, totalCount, initialFilters 

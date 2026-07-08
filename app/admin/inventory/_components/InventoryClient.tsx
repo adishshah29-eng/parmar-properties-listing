@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { updateInventoryStatus } from "./actions";
+import { updateInventoryStatus } from "../actions";
 
 export default function InventoryClient({ projects }: { projects: any[] }) {
   const [selectedConfigId, setSelectedConfigId] = useState<string | null>(null);

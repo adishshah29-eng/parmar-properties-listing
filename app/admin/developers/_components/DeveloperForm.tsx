@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createDeveloper } from "./actions";
+import { createDeveloper } from "../actions";
 
 export default function DeveloperForm() {
   const [logoUrl, setLogoUrl] = useState("");

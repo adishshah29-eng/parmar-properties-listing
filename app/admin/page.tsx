@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import SystemVisualizer from "./InteractiveVisualizer";
+import SystemVisualizer from "./_components/InteractiveVisualizer";
 import { Database } from "@/types/supabase";
 import { redirect } from "next/navigation";
 

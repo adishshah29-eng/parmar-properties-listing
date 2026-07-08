@@ -104,14 +104,20 @@ export default function SavedHomesDrawer() {
               {/* Footer */}
               {savedHomes.length > 0 && (
                 <div className="p-5 border-t border-border sticky bottom-0 bg-background flex flex-col gap-3">
-                  {/* Compare Button Placeholder - To be implemented in Phase 2 */}
-                  <button 
-                    disabled={savedHomes.length < 2}
-                    className="w-full bg-secondary text-secondary-foreground py-3 rounded-lg font-medium text-sm border border-border hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={savedHomes.length < 2 ? "Save at least 2 properties to compare" : "Compare selected"}
+                  <Link 
+                    href={`/compare?ids=${savedHomes.map(h => h.id).join(',')}`}
+                    onClick={(e) => {
+                      if (savedHomes.length < 2) {
+                        e.preventDefault();
+                      } else {
+                        setDrawerOpen(false);
+                      }
+                    }}
+                    className={`block w-full text-center py-3 rounded-lg font-medium text-sm border border-border transition-colors ${savedHomes.length < 2 ? 'bg-secondary text-secondary-foreground opacity-50 cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
+                    title={savedHomes.length < 2 ? "Save at least 2 properties to compare" : "Compare saved properties"}
                   >
-                    Compare Properties (Coming Soon)
-                  </button>
+                    Compare Properties
+                  </Link>
                   
                   <button 
                     onClick={handleShare}

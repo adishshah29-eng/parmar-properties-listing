@@ -21,10 +21,12 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
   };
 
   const renderGrid = () => {
+    // Desktop Grid Logic
+    let desktopGrid = null;
     if (images.length === 1) {
-      return (
+      desktopGrid = (
         <div 
-          className="relative w-full h-[400px] md:h-[500px] rounded-2xl overflow-hidden cursor-pointer group border border-border/40 shadow-sm"
+          className="relative w-full h-[500px] rounded-2xl overflow-hidden cursor-pointer group shadow-sm"
           onClick={() => setLightboxIndex(0)}
         >
           <Image 
@@ -35,70 +37,95 @@ export default function ImageGalleryClient({ images }: { images: any[] }) {
           />
         </div>
       );
-    }
-
-    if (images.length === 2) {
-      return (
-        <div className="flex gap-2 h-[400px] md:h-[500px] rounded-2xl overflow-hidden">
+    } else if (images.length === 2) {
+      desktopGrid = (
+        <div className="flex gap-2 h-[500px] rounded-2xl overflow-hidden">
           {images.slice(0, 2).map((img, i) => (
-            <div key={img.id || i} className="relative flex-1 cursor-pointer group border border-border/40 shadow-sm rounded-2xl overflow-hidden" onClick={() => setLightboxIndex(i)}>
+            <div key={img.id || i} className="relative flex-1 cursor-pointer group rounded-2xl overflow-hidden" onClick={() => setLightboxIndex(i)}>
               <Image src={getSafeUrl(img.url)} alt={img.label || `Image ${i+1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
             </div>
           ))}
         </div>
       );
+    } else {
+      const rightImages = images.slice(1, 5);
+      const hasMore = images.length > 5;
+      desktopGrid = (
+        <div className="flex flex-row gap-2 h-[500px]">
+          {/* Left: Hero Image */}
+          <div className="relative flex-1 cursor-pointer group h-full rounded-l-2xl overflow-hidden" onClick={() => setLightboxIndex(0)}>
+            <Image 
+              src={getSafeUrl(images[0].url)} 
+              alt={images[0].label || "Main property image"} 
+              fill 
+              className="object-cover transition-transform duration-500 group-hover:scale-105" 
+            />
+          </div>
+          
+          {/* Right: Grid of up to 4 images */}
+          <div className="grid w-[40%] grid-cols-2 grid-rows-2 gap-2 h-full">
+            {rightImages.map((img, i) => {
+              const isLastVisible = i === 3 || (i === rightImages.length - 1 && !hasMore);
+              const showButton = isLastVisible && images.length > 1;
+              
+              let roundedClass = "";
+              if (i === 1) roundedClass = "rounded-tr-2xl"; 
+              if (i === 3) roundedClass = "rounded-br-2xl"; 
+
+              return (
+                <div key={img.id || i} className={`relative cursor-pointer group overflow-hidden ${roundedClass}`} onClick={() => setLightboxIndex(i + 1)}>
+                  <Image 
+                    src={getSafeUrl(img.url)} 
+                    alt={img.label || `Image ${i+2}`} 
+                    fill 
+                    className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                  />
+                  
+                  {showButton && (
+                    <>
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                      <button className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-md font-medium text-sm shadow-md hover:bg-gray-50 flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                        Show all photos
+                      </button>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
     }
 
-    // 3 or more images: 1 large on left, up to 4 small on right
-    const rightImages = images.slice(1, 5);
-    const hasMore = images.length > 5;
-
     return (
-      <div className="flex flex-col md:flex-row gap-2 h-[400px] md:h-[500px]">
-        {/* Left: Hero Image */}
-        <div className="relative flex-1 cursor-pointer group h-full rounded-l-2xl overflow-hidden" onClick={() => setLightboxIndex(0)}>
-          <Image 
-            src={getSafeUrl(images[0].url)} 
-            alt={images[0].label || "Main property image"} 
-            fill 
-            className="object-cover transition-transform duration-500 group-hover:scale-105" 
-          />
+      <>
+        {/* Desktop View */}
+        <div className="hidden md:block">
+          {desktopGrid}
         </div>
         
-        {/* Right: Grid of up to 4 images */}
-        <div className="hidden md:grid w-[40%] grid-cols-2 grid-rows-2 gap-2 h-full">
-          {rightImages.map((img, i) => {
-            const isLastVisible = i === 3 || (i === rightImages.length - 1 && !hasMore);
-            const showButton = isLastVisible && images.length > 1;
-            
-            // Calculate which corner needs rounding based on index in 2x2 grid
-            let roundedClass = "";
-            if (i === 1) roundedClass = "rounded-tr-2xl"; // top-right
-            if (i === 3) roundedClass = "rounded-br-2xl"; // bottom-right
-
-            return (
-              <div key={img.id || i} className={`relative cursor-pointer group overflow-hidden ${roundedClass}`} onClick={() => setLightboxIndex(i + 1)}>
-                <Image 
-                  src={getSafeUrl(img.url)} 
-                  alt={img.label || `Image ${i+2}`} 
-                  fill 
-                  className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
-                
-                {showButton && (
-                  <>
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
-                    <button className="absolute bottom-4 right-4 bg-white text-black px-4 py-2 rounded-md font-medium text-sm shadow-md hover:bg-gray-50 flex items-center gap-2">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                      Show all photos
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
+        {/* Mobile View: Horizontal Carousel */}
+        <div className="md:hidden flex overflow-x-auto gap-3 snap-x snap-mandatory pb-4 -mx-4 px-4" style={{ WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+          <style dangerouslySetInnerHTML={{__html: `
+            .md\\:hidden::-webkit-scrollbar { display: none; }
+          `}} />
+          {images.map((img, i) => (
+            <div 
+              key={img.id || i} 
+              className="relative w-[85vw] h-[300px] flex-shrink-0 snap-center rounded-2xl overflow-hidden shadow-sm cursor-pointer"
+              onClick={() => setLightboxIndex(i)}
+            >
+              <Image 
+                src={getSafeUrl(img.url)} 
+                alt={img.label || `Image ${i+1}`} 
+                fill 
+                className="object-cover" 
+              />
+            </div>
+          ))}
         </div>
-      </div>
+      </>
     );
   };
 

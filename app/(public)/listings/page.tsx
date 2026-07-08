@@ -62,8 +62,40 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     };
   });
 
+  const bhkFilter = params.bhk ? (params.bhk as string).split(',').map(Number) : [];
+  const minPrice = params.minPrice ? Number(params.minPrice) : null;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : null;
+
   if (statusFilter !== 'All') {
     processedProjects = processedProjects.filter(p => p.derivedStatus === statusFilter);
+  }
+
+  // Apply BHK and Price filters based on configurations
+  if (bhkFilter.length > 0 || minPrice !== null || maxPrice !== null) {
+    processedProjects = processedProjects.filter(p => {
+      let matchingConfigs = p.configurations || [];
+
+      if (bhkFilter.length > 0) {
+        matchingConfigs = matchingConfigs.filter((cfg: any) => {
+          return bhkFilter.some(b => {
+            if (b === 5) return cfg.bhk >= 5; // "5" represents 5+
+            return cfg.bhk === b;
+          });
+        });
+      }
+
+      if (minPrice !== null || maxPrice !== null) {
+        matchingConfigs = matchingConfigs.filter((cfg: any) => {
+          const price = cfg.carpetArea * cfg.pricePerSqft;
+          if (minPrice !== null && price < minPrice) return false;
+          if (maxPrice !== null && price > maxPrice) return false;
+          return true;
+        });
+      }
+
+      // Keep the project if at least one configuration matches all criteria
+      return matchingConfigs.length > 0;
+    });
   }
 
   // 4. Paginate
@@ -78,6 +110,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     currentPage={page}
     totalPages={totalPages}
     totalCount={totalCount}
-    initialFilters={{ city: cityFilter, developer: devFilter, status: statusFilter }}
+    initialFilters={{ city: cityFilter, developer: devFilter, status: statusFilter, bhk: bhkFilter, minPrice, maxPrice }}
   />;
 }

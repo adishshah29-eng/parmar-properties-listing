@@ -109,11 +109,11 @@ export default async function Home() {
       <HomeSearchBar cities={cities} developers={devNames} />
 
       {/* Category tiles */}
-      <section className="bg-background relative pt-4 pb-20 md:pb-28">
+      <section className="bg-background relative pt-4 pb-8 md:pb-12">
         <div className="absolute inset-0 bg-muted/40 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
-          <div className="mb-14 text-center">
-            <p className="text-[11px] tracking-[0.25em] uppercase text-primary/70 mb-3 font-sans font-semibold">Browse by type</p>
+          <div className="mb-8 text-center">
+            <p className="text-[11px] tracking-[0.25em] uppercase text-primary/70 mb-2 font-sans font-semibold">Browse by type</p>
             <h2 className="font-serif text-3xl md:text-5xl text-foreground font-medium tracking-tight">Every kind of<br />South Mumbai home</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -145,7 +145,7 @@ export default async function Home() {
 
       {/* Featured listings */}
       {featured.length > 0 && (
-        <section className="bg-background py-20 md:py-28">
+        <section className="bg-background pt-2 pb-20 md:pt-4 md:pb-28">
           <div className="max-w-7xl mx-auto px-5 md:px-8">
             <div className="flex items-end justify-between mb-10">
               <div>
@@ -214,15 +214,15 @@ export default async function Home() {
               <h2 className="font-serif text-3xl md:text-4xl text-primary-foreground font-medium">South Mumbai's<br />finest postcodes</h2>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:flex md:flex-row gap-3 md:h-[400px]">
             {NEIGHBORHOODS.map((n) => (
-              <Link key={n.name} href="/listings" className="group relative overflow-hidden h-72 bg-primary-foreground/10 block">
-                <img src={n.image} alt={n.name} className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-65 transition-opacity duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
-                  <h3 className="font-serif text-xl text-white font-medium">{n.name}</h3>
-                  <p className="text-white/55 text-xs mt-0.5 font-sans">{n.tagline}</p>
-                  <p className="text-[#B59E7E] text-xs mt-2 font-sans">{n.count} properties</p>
+              <Link key={n.name} href="/listings" className="group relative overflow-hidden h-56 md:h-full md:flex-1 md:hover:[flex:2_2_0%] transition-all duration-500 ease-out bg-primary-foreground/10 block rounded-2xl">
+                <img src={n.image} alt={n.name} className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-left transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                  <h3 className="font-serif text-2xl text-white font-medium">{n.name}</h3>
+                  <p className="text-white/70 text-sm mt-1 font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">{n.tagline}</p>
+                  <p className="text-[#B59E7E] text-sm mt-3 font-sans font-medium">{n.count} properties</p>
                 </div>
               </Link>
             ))}
@@ -231,7 +231,7 @@ export default async function Home() {
       </section>
 
       {/* Why Parmar */}
-      <section className="bg-background py-20 md:py-28">
+      <section className="bg-background pt-4 pb-20 md:pt-8 md:pb-28">
         <div className="max-w-7xl mx-auto px-5 md:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>

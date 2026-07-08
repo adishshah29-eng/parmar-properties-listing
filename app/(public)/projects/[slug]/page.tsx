@@ -6,6 +6,8 @@ import ImageGalleryClient from "./ImageGalleryClient";
 import { Metadata } from "next";
 import Image from "next/image";
 import FadeIn from "@/components/common/FadeIn";
+import SimilarPropertiesClient from "./SimilarPropertiesClient";
+import TourModalClient from "./TourModalClient";
 
 export const revalidate = 3600;
 
@@ -125,6 +127,40 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       streetAddress: project.location,
     }
   };
+
+  // Fetch similar projects in the same city
+  const { data: similarRaw } = await supabase
+    .from('projects')
+    .select(`
+      *,
+      developer:developers(*),
+      images:project_images(url, sortOrder),
+      configurations(*)
+    `)
+    .eq('city', project.city)
+    .neq('id', project.id)
+    .limit(4);
+
+  const similarProjects = (similarRaw || []).map(p => {
+    const sImages = [...(p.images || [])].sort((a, b) => {
+      if (a.sortOrder === null) return 1;
+      if (b.sortOrder === null) return -1;
+      return a.sortOrder - b.sortOrder;
+    });
+    const coverImage = sImages.length > 0 ? sImages[0] : null;
+
+    const sortedConfigs = [...(p.configurations || [])].sort((a, b) => {
+      if (a.bhk !== b.bhk) return a.bhk - b.bhk;
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    return {
+      ...p,
+      images: coverImage ? [coverImage] : [],
+      configurations: sortedConfigs,
+      derivedStatus: getProjectStatus(sortedConfigs)
+    };
+  });
 
   return (
     <div className="body-area pb-[100px] pt-6">
@@ -338,6 +374,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </div>
               </FadeIn>
             )}
+
+            <SimilarPropertiesClient projects={similarProjects} />
           </section>
 
           {/* Sticky Sidebar */}
@@ -346,9 +384,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <div className="font-sans text-xl font-semibold mb-6 text-center text-foreground">Contact property</div>
               
               <div className="flex flex-col gap-3 mb-6">
-                <a href={enquireUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/10 hover:bg-primary/20 text-primary font-medium text-center py-3 rounded-md transition-colors w-full no-underline">
-                  Request Tour
-                </a>
+                <TourModalClient projectId={project.id} projectName={project.name} />
+
                 <a href={enquireUrl} target="_blank" rel="noopener noreferrer" className="border border-primary/30 hover:border-primary text-primary font-medium text-center py-3 rounded-md transition-colors w-full no-underline">
                   Send Message
                 </a>

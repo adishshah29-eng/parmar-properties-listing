@@ -60,16 +60,14 @@ function ScrollWord({
   const y = useTransform(
     scrollYProgress,
     inputRange,
-    [30, 0, 0, isLast ? 0 : -30]
+    [20, 0, 0, isLast ? 0 : -20]
   );
   
-  const blurAmount = useTransform(
+  const scale = useTransform(
     scrollYProgress,
     inputRange,
-    [8, 0, 0, isLast ? 0 : 8]
+    [0.95, 1, 1, isLast ? 1 : 0.95]
   );
-  
-  const filter = useTransform(blurAmount, (v) => `blur(${v}px)`);
 
   const opacity = useTransform(
     scrollYProgress,
@@ -77,20 +75,15 @@ function ScrollWord({
     [0, 1, 1, isLast ? 1 : 0]
   );
 
-  const willChange = useTransform(
-    scrollYProgress,
-    (v) => (v > t1 && v < t4) ? "transform, opacity, filter" : "auto"
-  );
-
   return (
     <span className="inline-block pb-4 -mb-4 align-top mr-[0.25em]">
       <motion.span 
         style={{ 
           y, 
+          scale,
           opacity, 
-          filter,
-          display: "inline-block", 
-          willChange
+          display: "inline-block",
+          willChange: "transform, opacity"
         }}
       >
         {word}
@@ -279,7 +272,7 @@ export function HeroScrollContainer({ children }: { children?: React.ReactNode }
         style={{ scale, borderRadius }}
         className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end transform-gpu"
       >
-        <HeroScrollAnimation scrollYProgress={rawProgress} totalFrames={240} />
+        <HeroScrollAnimation scrollYProgress={scrollYProgress} totalFrames={240} />
         
         {/* Cinematic Film Grain Overlay (Option 3) */}
         <div className="absolute inset-0 bg-noise z-10" />

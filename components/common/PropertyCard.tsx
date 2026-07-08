@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { Heart, MapPin, Bed } from "lucide-react";
 import Image from "next/image";
+import { useSavedHomes } from "@/app/(public)/_providers/SavedHomesProvider";
 
 const STATUS_COLOR: Record<string, string> = {
-  "UNDER_CONSTRUCTION": "bg-emerald-900 text-emerald-100",
-  "NEW_LAUNCH": "bg-emerald-900 text-emerald-100",
-  "READY_TO_MOVE": "bg-sky-800 text-sky-50",
-  "RESALE": "bg-amber-800 text-amber-50",
-  "SOLD_OUT": "bg-[#1A1A18] text-[#B59E7E]",
+  "UNDER_CONSTRUCTION": "text-emerald-50 bg-emerald-500/20 border-emerald-500/30",
+  "NEW_LAUNCH": "text-sky-50 bg-sky-500/20 border-sky-500/30",
+  "READY_TO_MOVE": "text-amber-50 bg-amber-500/20 border-amber-500/30",
+  "RESALE": "text-purple-50 bg-purple-500/20 border-purple-500/30",
+  "SOLD_OUT": "text-zinc-300 bg-zinc-900/40 border-zinc-500/30",
 };
 
 export function StatusBadge({ status }: { status: string }) {
   const displayStatus = status.replace(/_/g, " ");
-  const colorClass = STATUS_COLOR[status] || "bg-primary text-primary-foreground";
+  const colorClass = STATUS_COLOR[status] || "text-white bg-black/30 border-white/20";
   return (
-    <span className={`inline-block px-2.5 py-[3px] text-[10px] tracking-widest uppercase font-sans font-semibold ${colorClass}`}>
+    <span className={`inline-block px-3 py-1 text-[10px] tracking-widest uppercase font-sans font-semibold backdrop-blur-md shadow-sm rounded-full border ${colorClass}`}>
       {displayStatus}
     </span>
   );
@@ -36,7 +36,8 @@ function formatInr(value: number) {
 }
 
 export default function PropertyCard({ project, onClick }: { project: any; onClick?: () => void }) {
-  const [saved, setSaved] = useState(false);
+  const { isSaved, addSavedHome, removeSavedHome } = useSavedHomes();
+  const saved = isSaved(project.id);
   
   let projectImage = project.images?.length > 0 ? project.images[0].url : "";
   if (projectImage && !projectImage.startsWith('/') && !projectImage.startsWith('http')) {
@@ -73,11 +74,29 @@ export default function PropertyCard({ project, onClick }: { project: any; onCli
     }
   }
 
+  const toggleSave = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    e.preventDefault(); 
+    if (saved) {
+      removeSavedHome(project.id);
+    } else {
+      addSavedHome({
+        id: project.id,
+        slug: project.slug,
+        name: project.name,
+        city: project.city,
+        location: project.location,
+        imageUrl: projectImage,
+        priceText
+      });
+    }
+  };
+
   return (
-    <div className="bg-card group cursor-pointer overflow-hidden border border-border hover:border-primary/40 transition-colors duration-300" onClick={onClick}>
-      <div className="relative overflow-hidden h-56 bg-muted">
+    <div className="bg-card group cursor-pointer overflow-hidden border border-border/50 hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/10 rounded-xl" onClick={onClick}>
+      <div className="relative overflow-hidden h-64 bg-muted">
         {projectImage ? (
-          <Image src={projectImage} alt={project.name} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+          <Image src={projectImage} alt={project.name} fill className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
             No Image
@@ -86,10 +105,10 @@ export default function PropertyCard({ project, onClick }: { project: any; onCli
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
         <div className="absolute top-3 left-3"><StatusBadge status={project.derivedStatus} /></div>
         <button
-          className="absolute top-3 right-3 w-8 h-8 bg-white/90 flex items-center justify-center hover:bg-white transition-colors z-10"
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); setSaved(!saved); }}
+          className={`absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full transition-colors z-10 ${saved ? 'bg-white shadow-md' : 'bg-black/20 backdrop-blur-md hover:bg-white/90'}`}
+          onClick={toggleSave}
         >
-          <Heart size={14} fill={saved ? "currentColor" : "none"} className={saved ? "text-red-500" : "text-foreground"} />
+          <Heart size={14} fill={saved ? "currentColor" : "none"} className={saved ? "text-red-500" : "text-white group-hover:text-foreground"} />
         </button>
         <div className="absolute bottom-3 left-3 z-10">
           <span className="text-white font-serif text-xl font-medium drop-shadow">{priceText}</span>

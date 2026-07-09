@@ -22,8 +22,32 @@ const instrumentSerif = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Parmar Properties",
+  title: "Parmar Properties | Luxury Real Estate",
   description: "South Mumbai's premier real estate consultancy. Curating exceptional homes since 1994.",
+  keywords: ["Luxury Real Estate", "South Mumbai", "Worli", "Properties", "Parmar Properties"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://parmarproperties.com'),
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "/",
+    title: "Parmar Properties | Luxury Real Estate",
+    description: "South Mumbai's premier real estate consultancy. Curating exceptional homes since 1994.",
+    siteName: "Parmar Properties",
+    images: [
+      {
+        url: "/og-image.jpg", // We will assume an og-image.jpg exists or will be added
+        width: 1200,
+        height: 630,
+        alt: "Parmar Properties - Luxury Real Estate",
+      }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Parmar Properties | Luxury Real Estate",
+    description: "South Mumbai's premier real estate consultancy. Curating exceptional homes since 1994.",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({

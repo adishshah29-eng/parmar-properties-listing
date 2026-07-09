@@ -13,10 +13,20 @@ function formatInr(value: number) {
   }).format(value);
 }
 
+import { z } from 'zod';
+
+const deleteProjectSchema = z.object({
+  id: z.string().uuid(),
+});
+
 async function deleteProject(formData: FormData) {
   "use server";
-  const id = String(formData.get("id") ?? "");
-  if (!id) return;
+  const parsed = deleteProjectSchema.safeParse({
+    id: formData.get("id"),
+  });
+  if (!parsed.success) return;
+  const id = parsed.data.id;
+
   const supabase = await createClient();
   await supabase.from('projects').delete().eq('id', id);
   revalidatePath("/admin");

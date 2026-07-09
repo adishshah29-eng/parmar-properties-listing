@@ -4,15 +4,26 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+import { z } from 'zod'
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+})
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+  const parsed = loginSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  })
+
+  if (!parsed.success) {
+    redirect('/admin/login?error=Invalid credentials provided')
   }
+
+  const data = parsed.data
 
   const { error } = await supabase.auth.signInWithPassword(data)
 

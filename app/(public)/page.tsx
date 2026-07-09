@@ -7,13 +7,25 @@ import { StatusBadge } from "@/components/common/PropertyCard";
 import { HeroScrollContainer } from "@/components/common/HeroScrollContainer";
 import { HomeSearchBar } from "@/components/common/HomeSearchBar";
 import FadeIn from "@/components/common/FadeIn";
+import { Suspense } from "react";
 
 export const revalidate = 3600;
 
-export default async function Home() {
+async function DynamicHomeSearchBar() {
+  const supabase = await createClient();
+  const [{ data: developers }, { data: projectsForCities }] = await Promise.all([
+    supabase.from('developers').select('name').order('name'),
+    supabase.from('projects').select('city')
+  ]);
+  const cities = ["All", ...Array.from(new Set((projectsForCities || []).map(p => p.city)))];
+  const devNames = ["All", ...Array.from(new Set((developers || []).map(d => d.name)))];
+
+  return <HomeSearchBar cities={cities} developers={devNames} />;
+}
+
+async function DynamicFeaturedListings() {
   const supabase = await createClient();
   
-  // Fetch a few projects for the featured section
   const { data: rawProjects } = await supabase
     .from('projects')
     .select(`
@@ -24,14 +36,6 @@ export default async function Home() {
     `)
     .order('createdAt', { ascending: false })
     .limit(3);
-
-  // Fetch unique cities & developers for the search bar
-  const [{ data: developers }, { data: projectsForCities }] = await Promise.all([
-    supabase.from('developers').select('name').order('name'),
-    supabase.from('projects').select('city')
-  ]);
-  const cities = ["All", ...Array.from(new Set((projectsForCities || []).map(p => p.city)))];
-  const devNames = ["All", ...Array.from(new Set((developers || []).map(d => d.name)))];
 
   const featured = (rawProjects || []).map(p => {
     const sortedImages = [...(p.images || [])].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -79,6 +83,85 @@ export default async function Home() {
     };
   });
 
+  if (featured.length === 0) return null;
+
+  return (
+    <section className="bg-background pt-2 pb-20 md:pt-4 md:pb-28">
+      <div className="max-w-7xl mx-auto px-5 md:px-8">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2 font-sans">Hand-picked for you</p>
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium">Featured residences</h2>
+          </div>
+          <Link href="/listings" className="hidden md:flex items-center gap-2 text-sm text-primary font-sans font-medium hover:gap-3 transition-all">
+            View all listings <ArrowRight size={13} />
+          </Link>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 group/featured">
+          <Link
+            href={`/projects/${featured[0].id}`}
+            className="md:col-span-2 relative cursor-pointer overflow-hidden bg-muted h-[500px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
+          >
+            {featured[0].images.length > 0 && (
+              <Image 
+                src={featured[0].images[0].url.startsWith('/') ? featured[0].images[0].url : `/${featured[0].images[0].url}`} 
+                alt={featured[0].name} 
+                fill
+                sizes="(max-width: 768px) 100vw, 66vw"
+                priority={true}
+                className="object-cover transition-transform duration-1000 ease-out hover:scale-110" 
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+            <div className="absolute top-5 left-5"><StatusBadge status={featured[0].derivedStatus} /></div>
+            <div className="absolute bottom-0 left-0 right-0 p-8 transform transition-transform duration-500 hover:-translate-y-2">
+              <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1.5 font-sans">{featured[0].location}, {featured[0].city}</p>
+              <h3 className="font-serif text-3xl text-white font-medium mb-3 drop-shadow-md">{featured[0].name}</h3>
+              <div className="flex items-center justify-between">
+                <span className="text-[#B59E7E] font-serif text-2xl drop-shadow-md">{featured[0].priceText}</span>
+                <span className="text-white/70 text-xs font-sans bg-black/30 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
+              </div>
+            </div>
+          </Link>
+
+          <div className="flex flex-col gap-6">
+            {featured.slice(1, 3).map((p, index) => (
+              <Link
+                key={p.id}
+                href={`/projects/${p.id}`}
+                className="relative cursor-pointer overflow-hidden bg-muted flex-1 min-h-[238px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/15"
+              >
+                {p.images.length > 0 && (
+                  <Image 
+                    src={p.images[0].url.startsWith('/') ? p.images[0].url : `/${p.images[0].url}`} 
+                    alt={p.name} 
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    priority={index === 0}
+                    className="object-cover transition-transform duration-1000 ease-out hover:scale-110" 
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute top-4 left-4"><StatusBadge status={p.derivedStatus} /></div>
+                <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-500 hover:-translate-y-1">
+                  <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{p.location}</p>
+                  <h3 className="font-serif text-xl text-white font-medium drop-shadow-md">{p.name}</h3>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-[#B59E7E] font-serif text-lg drop-shadow-md">{p.priceText}</span>
+                    <span className="text-white/70 text-[10px] font-sans bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-md border border-white/10">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function Home() {
   const NEIGHBORHOODS = [
     { name: "Worli", tagline: "Sea-facing skyline", count: 28, image: "https://images.unsplash.com/photo-1679249010086-b8a932c8cafc?w=600&h=800&fit=crop&auto=format" },
     { name: "Malabar Hill", tagline: "Legacy addresses", count: 14, image: "https://images.unsplash.com/photo-1750758605895-34f909ca82ce?w=600&h=800&fit=crop&auto=format" },
@@ -106,8 +189,10 @@ export default async function Home() {
         {/* Intentionally left blank as requested */}
       </HeroScrollContainer>
 
-      {/* Search Bar Section */}
-      <HomeSearchBar cities={cities} developers={devNames} />
+      {/* Search Bar Section with Suspense */}
+      <Suspense fallback={<div className="h-24 max-w-5xl mx-auto -mt-12 bg-background border border-border/50 shadow-xl rounded-2xl animate-pulse z-20 relative"></div>}>
+        <DynamicHomeSearchBar />
+      </Suspense>
 
       {/* Category tiles */}
       <section className="bg-background relative pt-4 pb-8 md:pb-12">
@@ -124,7 +209,6 @@ export default async function Home() {
                   href="/listings"
                   className="group relative h-full bg-white/5 dark:bg-black/20 backdrop-blur-md border border-border/60 p-8 rounded-3xl text-left hover:bg-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden block"
                 >
-                  {/* Subtle gradient hover effect background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   
                   <div className="relative z-10 flex flex-col h-full">
@@ -145,67 +229,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured listings */}
-      {featured.length > 0 && (
-        <section className="bg-background pt-2 pb-20 md:pt-4 md:pb-28">
-          <div className="max-w-7xl mx-auto px-5 md:px-8">
-            <div className="flex items-end justify-between mb-10">
-              <div>
-                <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2 font-sans">Hand-picked for you</p>
-                <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium">Featured residences</h2>
-              </div>
-              <Link href="/listings" className="hidden md:flex items-center gap-2 text-sm text-primary font-sans font-medium hover:gap-3 transition-all">
-                View all listings <ArrowRight size={13} />
-              </Link>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 group/featured">
-              <Link
-                href={`/projects/${featured[0].slug}`}
-                className="md:col-span-2 relative cursor-pointer overflow-hidden bg-muted h-[500px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
-              >
-                {featured[0].images.length > 0 && (
-                  <img src={featured[0].images[0].url.startsWith('/') ? featured[0].images[0].url : `/${featured[0].images[0].url}`} alt={featured[0].name} className="w-full h-full object-cover transition-transform duration-1000 ease-out hover:scale-110" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-                <div className="absolute top-5 left-5"><StatusBadge status={featured[0].derivedStatus} /></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8 transform transition-transform duration-500 hover:-translate-y-2">
-                  <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1.5 font-sans">{featured[0].location}, {featured[0].city}</p>
-                  <h3 className="font-serif text-3xl text-white font-medium mb-3 drop-shadow-md">{featured[0].name}</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#B59E7E] font-serif text-2xl drop-shadow-md">{featured[0].priceText}</span>
-                    <span className="text-white/70 text-xs font-sans bg-black/30 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="flex flex-col gap-6">
-                {featured.slice(1, 3).map((p) => (
-                  <Link
-                    key={p.id}
-                    href={`/projects/${p.slug}`}
-                    className="relative cursor-pointer overflow-hidden bg-muted flex-1 min-h-[238px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/15"
-                  >
-                    {p.images.length > 0 && (
-                      <img src={p.images[0].url.startsWith('/') ? p.images[0].url : `/${p.images[0].url}`} alt={p.name} className="w-full h-full object-cover transition-transform duration-1000 ease-out hover:scale-110" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute top-4 left-4"><StatusBadge status={p.derivedStatus} /></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-500 hover:-translate-y-1">
-                      <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{p.location}</p>
-                      <h3 className="font-serif text-xl text-white font-medium drop-shadow-md">{p.name}</h3>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-[#B59E7E] font-serif text-lg drop-shadow-md">{p.priceText}</span>
-                        <span className="text-white/70 text-[10px] font-sans bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-md border border-white/10">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
+      {/* Featured listings with Suspense */}
+      <Suspense fallback={
+        <div className="bg-background pt-2 pb-20 md:pt-4 md:pb-28 max-w-7xl mx-auto px-5 md:px-8">
+          <div className="w-48 h-8 bg-muted rounded-md animate-pulse mb-10"></div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 h-[500px] bg-muted rounded-3xl animate-pulse"></div>
+            <div className="flex flex-col gap-6">
+              <div className="flex-1 min-h-[238px] bg-muted rounded-3xl animate-pulse"></div>
+              <div className="flex-1 min-h-[238px] bg-muted rounded-3xl animate-pulse"></div>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      }>
+        <DynamicFeaturedListings />
+      </Suspense>
 
       {/* Neighborhoods */}
       <section className="bg-primary py-20 md:py-28">
@@ -219,7 +257,7 @@ export default async function Home() {
           <div className="grid grid-cols-2 md:flex md:flex-row gap-3 md:h-[400px]">
             {NEIGHBORHOODS.map((n) => (
               <Link key={n.name} href="/listings" className="group relative overflow-hidden h-56 md:h-full md:flex-1 md:hover:[flex:2_2_0%] transition-all duration-500 ease-out bg-primary-foreground/10 block rounded-2xl">
-                <img src={n.image} alt={n.name} className="absolute inset-0 w-full h-full object-cover opacity-45 group-hover:opacity-100 transition-opacity duration-500" />
+                <Image src={n.image} alt={n.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="absolute inset-0 object-cover opacity-45 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-left transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                   <h3 className="font-serif text-2xl text-white font-medium">{n.name}</h3>
@@ -270,9 +308,11 @@ export default async function Home() {
 
             <div className="relative">
               <div className="aspect-[4/5] overflow-hidden bg-muted">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1758193431355-54df41421657?w=800&h=1000&fit=crop&auto=format"
                   alt="Premium South Mumbai building"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="w-full h-full object-cover"
                 />
               </div>

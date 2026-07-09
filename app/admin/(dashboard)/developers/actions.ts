@@ -3,13 +3,28 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
-export async function createDeveloper(formData: FormData, logoUrl: string | null) {
-  const name = String(formData.get("name") ?? "").trim();
-  if (!name) return { error: "Name is required" };
+import { z } from 'zod';
 
-  const website = String(formData.get("website") ?? "").trim() || null;
-  const establishedRaw = String(formData.get("established") ?? "").trim();
-  const established = establishedRaw ? Number(establishedRaw) : null;
+const createDeveloperSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  website: z.string().url().optional().or(z.literal("")),
+  established: z.coerce.number().int().positive().optional().or(z.literal("")),
+});
+
+export async function createDeveloper(formData: FormData, logoUrl: string | null) {
+  const parsed = createDeveloperSchema.safeParse({
+    name: formData.get("name"),
+    website: formData.get("website"),
+    established: formData.get("established"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.errors[0].message };
+  }
+
+  const name = parsed.data.name.trim();
+  const website = parsed.data.website?.trim() || null;
+  const established = typeof parsed.data.established === 'number' ? parsed.data.established : null;
 
   const supabase = await createClient();
   

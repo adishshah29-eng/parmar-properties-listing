@@ -5,10 +5,20 @@ import FadeIn from "@/components/common/FadeIn";
 import DeveloperForm from "./_components/DeveloperForm";
 import { Trash2 } from "lucide-react";
 
+import { z } from 'zod';
+
+const deleteDeveloperSchema = z.object({
+  id: z.string().uuid(),
+});
+
 async function deleteDeveloper(formData: FormData) {
   "use server";
-  const id = String(formData.get("id") ?? "");
-  if (!id) return;
+  const parsed = deleteDeveloperSchema.safeParse({
+    id: formData.get("id"),
+  });
+  if (!parsed.success) return;
+  const id = parsed.data.id;
+  
   const supabase = await createClient();
   await supabase.from('developers').delete().eq('id', id);
   revalidatePath("/admin");

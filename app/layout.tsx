@@ -34,9 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSans.variable} ${instrumentSerif.variable}`}>
       <body>
-        <Navbar />
         {children}
-        <Footer />
         <AgentationWrapper />
       </body>
     </html>

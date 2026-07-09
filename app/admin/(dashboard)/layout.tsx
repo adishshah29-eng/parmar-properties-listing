@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { logout } from "./login/actions";
+import { logout } from "../login/actions";
 import { Home, Users, Building2, Key, Settings, LogOut, ArrowLeft } from "lucide-react";
 
 export default function AdminLayout({

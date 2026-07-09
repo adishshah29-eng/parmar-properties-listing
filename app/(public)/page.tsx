@@ -6,6 +6,7 @@ import Image from "next/image";
 import { StatusBadge } from "@/components/common/PropertyCard";
 import { HeroScrollContainer } from "@/components/common/HeroScrollContainer";
 import { HomeSearchBar } from "@/components/common/HomeSearchBar";
+import FadeIn from "@/components/common/FadeIn";
 
 export const revalidate = 3600;
 
@@ -117,27 +118,28 @@ export default async function Home() {
             <h2 className="font-serif text-3xl md:text-5xl text-foreground font-medium tracking-tight">Every kind of<br />South Mumbai home</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                href="/listings"
-                className="group relative bg-card/60 backdrop-blur-sm border border-border/60 p-8 rounded-3xl text-left hover:bg-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-xl overflow-hidden block"
-              >
-                {/* Subtle gradient hover effect background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col h-full">
-                  {cat.icon}
-                  <div className="font-serif text-4xl font-medium mb-1 text-foreground transition-colors">{cat.count}</div>
-                  <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-hover:text-primary/70 mb-5 font-sans font-semibold transition-colors">Properties</div>
-                  <h3 className="font-serif text-xl font-medium mb-3 leading-snug group-hover:text-primary transition-colors">{cat.label}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed flex-grow">{cat.description}</p>
+            {CATEGORIES.map((cat, idx) => (
+              <FadeIn key={cat.id} delay={0.1 * idx}>
+                <Link
+                  href="/listings"
+                  className="group relative h-full bg-white/5 dark:bg-black/20 backdrop-blur-md border border-border/60 p-8 rounded-3xl text-left hover:bg-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden block"
+                >
+                  {/* Subtle gradient hover effect background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   
-                  <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-primary transition-all duration-300 opacity-0 transform translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0">
-                    Browse Collection <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <div className="relative z-10 flex flex-col h-full">
+                    {cat.icon}
+                    <div className="font-serif text-4xl font-medium mb-1 text-foreground transition-colors">{cat.count}</div>
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-hover:text-primary/70 mb-5 font-sans font-semibold transition-colors">Properties</div>
+                    <h3 className="font-serif text-xl font-medium mb-3 leading-snug group-hover:text-primary transition-colors">{cat.label}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-grow">{cat.description}</p>
+                    
+                    <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-primary transition-all duration-300 opacity-0 transform -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0">
+                      Browse Collection <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -157,44 +159,44 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-3 gap-6 group/featured">
               <Link
                 href={`/projects/${featured[0].slug}`}
-                className="md:col-span-2 relative group cursor-pointer overflow-hidden bg-muted h-[500px] block"
+                className="md:col-span-2 relative cursor-pointer overflow-hidden bg-muted h-[500px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
               >
                 {featured[0].images.length > 0 && (
-                  <img src={featured[0].images[0].url.startsWith('/') ? featured[0].images[0].url : `/${featured[0].images[0].url}`} alt={featured[0].name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={featured[0].images[0].url.startsWith('/') ? featured[0].images[0].url : `/${featured[0].images[0].url}`} alt={featured[0].name} className="w-full h-full object-cover transition-transform duration-1000 ease-out hover:scale-110" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute top-4 left-4"><StatusBadge status={featured[0].derivedStatus} /></div>
-                <div className="absolute bottom-0 left-0 right-0 p-7">
-                  <p className="text-white/55 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{featured[0].location}, {featured[0].city}</p>
-                  <h3 className="font-serif text-2xl text-white font-medium mb-2">{featured[0].name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute top-5 left-5"><StatusBadge status={featured[0].derivedStatus} /></div>
+                <div className="absolute bottom-0 left-0 right-0 p-8 transform transition-transform duration-500 hover:-translate-y-2">
+                  <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1.5 font-sans">{featured[0].location}, {featured[0].city}</p>
+                  <h3 className="font-serif text-3xl text-white font-medium mb-3 drop-shadow-md">{featured[0].name}</h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#B59E7E] font-serif text-xl">{featured[0].priceText}</span>
-                    <span className="text-white/55 text-xs font-sans">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
+                    <span className="text-[#B59E7E] font-serif text-2xl drop-shadow-md">{featured[0].priceText}</span>
+                    <span className="text-white/70 text-xs font-sans bg-black/30 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
                   </div>
                 </div>
               </Link>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-6">
                 {featured.slice(1, 3).map((p) => (
                   <Link
                     key={p.id}
                     href={`/projects/${p.slug}`}
-                    className="relative group cursor-pointer overflow-hidden bg-muted flex-1 min-h-[238px] block"
+                    className="relative cursor-pointer overflow-hidden bg-muted flex-1 min-h-[238px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/15"
                   >
                     {p.images.length > 0 && (
-                      <img src={p.images[0].url.startsWith('/') ? p.images[0].url : `/${p.images[0].url}`} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <img src={p.images[0].url.startsWith('/') ? p.images[0].url : `/${p.images[0].url}`} alt={p.name} className="w-full h-full object-cover transition-transform duration-1000 ease-out hover:scale-110" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute top-3 left-3"><StatusBadge status={p.derivedStatus} /></div>
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <p className="text-white/55 text-[10px] tracking-[0.3em] uppercase mb-0.5 font-sans">{p.location}</p>
-                      <h3 className="font-serif text-base text-white font-medium">{p.name}</h3>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-[#B59E7E] font-serif">{p.priceText}</span>
-                        <span className="text-white/55 text-[10px] font-sans">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute top-4 left-4"><StatusBadge status={p.derivedStatus} /></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-500 hover:-translate-y-1">
+                      <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{p.location}</p>
+                      <h3 className="font-serif text-xl text-white font-medium drop-shadow-md">{p.name}</h3>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-[#B59E7E] font-serif text-lg drop-shadow-md">{p.priceText}</span>
+                        <span className="text-white/70 text-[10px] font-sans bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-md border border-white/10">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
                       </div>
                     </div>
                   </Link>
@@ -234,7 +236,7 @@ export default async function Home() {
       <section className="bg-background pt-4 pb-20 md:pt-8 md:pb-28">
         <div className="max-w-7xl mx-auto px-5 md:px-8">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
+            <FadeIn>
               <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-3 font-sans">Why choose us</p>
               <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium leading-snug mb-6">A different kind<br />of real estate partner</h2>
               <p className="text-muted-foreground text-base leading-relaxed mb-8">
@@ -246,25 +248,25 @@ export default async function Home() {
                   { title: "Curated, not aggregated", desc: "Every listing is personally verified and assessed by our team before it appears here" },
                   { title: "End-to-end assistance", desc: "From shortlisting through RERA, legal due diligence, and registration" },
                   { title: "Discreet off-market access", desc: "Our network surfaces homes before they ever appear on any portal" },
-                ].map((item) => (
-                  <div key={item.title} className="flex gap-4">
-                    <div className="w-5 h-5 bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                ].map((item, idx) => (
+                  <FadeIn key={item.title} delay={0.1 * idx} className="flex gap-4">
+                    <div className="w-5 h-5 bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 rounded">
                       <Check size={10} className="text-primary" />
                     </div>
                     <div>
                       <h4 className="font-sans font-semibold text-sm text-foreground mb-0.5">{item.title}</h4>
                       <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
                     </div>
-                  </div>
+                  </FadeIn>
                 ))}
               </div>
               <Link
                 href="/contact"
-                className="mt-8 bg-primary text-primary-foreground px-6 py-3 text-sm font-sans font-medium tracking-wide hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
+                className="mt-8 bg-primary text-primary-foreground px-6 py-3 text-sm font-sans font-medium tracking-wide hover:bg-primary/90 transition-colors inline-flex items-center gap-2 rounded-lg"
               >
                 Talk to a consultant <ArrowRight size={13} />
               </Link>
-            </div>
+            </FadeIn>
 
             <div className="relative">
               <div className="aspect-[4/5] overflow-hidden bg-muted">
@@ -291,17 +293,19 @@ export default async function Home() {
             <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium">What our clients say</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-card border border-border p-8">
-                <div className="flex gap-1 mb-5">
-                  {[...Array(t.rating)].map((_, i) => <div key={i} className="w-2.5 h-2.5 bg-[#B59E7E]" />)}
+            {TESTIMONIALS.map((t, idx) => (
+              <FadeIn key={t.name} delay={0.15 * idx}>
+                <div className="bg-white/5 backdrop-blur-lg border border-border/50 p-8 rounded-3xl hover:-translate-y-2 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 h-full">
+                  <div className="flex gap-1 mb-5">
+                    {[...Array(t.rating)].map((_, i) => <div key={i} className="w-2.5 h-2.5 bg-[#B59E7E]" />)}
+                  </div>
+                  <blockquote className="font-serif text-base text-foreground leading-relaxed mb-6 italic">"{t.quote}"</blockquote>
+                  <div>
+                    <div className="font-sans font-semibold text-sm text-foreground">{t.name}</div>
+                    <div className="text-xs text-muted-foreground font-sans">{t.locality}, South Mumbai</div>
+                  </div>
                 </div>
-                <blockquote className="font-serif text-base text-foreground leading-relaxed mb-6 italic">"{t.quote}"</blockquote>
-                <div>
-                  <div className="font-sans font-semibold text-sm text-foreground">{t.name}</div>
-                  <div className="text-xs text-muted-foreground font-sans">{t.locality}, South Mumbai</div>
-                </div>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>

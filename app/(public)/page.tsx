@@ -8,22 +8,25 @@ import { HeroScrollContainer } from "@/components/common/HeroScrollContainer";
 import { HomeSearchBar } from "@/components/common/HomeSearchBar";
 import FadeIn from "@/components/common/FadeIn";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { Template1, Template2, Template3, Template4, Template5, Template6 } from "@/components/common/FeaturedTemplates";
+import { Template1 as NeighborhoodTemplate1, Template2 as NeighborhoodTemplate2, Template3 as NeighborhoodTemplate3, Template4 as NeighborhoodTemplate4, Template5 as NeighborhoodTemplate5 } from "@/components/common/NeighborhoodTemplates";
+import { NEIGHBORHOODS } from "@/lib/constants";
 
 export const revalidate = 3600;
 
 async function DynamicHomeSearchBar() {
   const supabase = await createClient();
-  const [{ data: developers }, { data: projectsForCities }] = await Promise.all([
-    supabase.from('developers').select('name').order('name'),
-    supabase.from('projects').select('city')
-  ]);
-  const cities = ["All", ...Array.from(new Set((projectsForCities || []).map(p => p.city)))];
-  const devNames = ["All", ...Array.from(new Set((developers || []).map(d => d.name)))];
+  const { data: projectsForLocations } = await supabase.from('projects').select('location');
+  const locations = ["All", ...Array.from(new Set((projectsForLocations || []).map(p => p.location)))];
 
-  return <HomeSearchBar cities={cities} developers={devNames} />;
+  return <HomeSearchBar locations={locations} />;
 }
 
 async function DynamicFeaturedListings() {
+  const cookieStore = await cookies();
+  const selectedTemplate = cookieStore.get("selected_featured_template")?.value || "1";
+
   const supabase = await createClient();
   
   const { data: rawProjects } = await supabase
@@ -35,7 +38,7 @@ async function DynamicFeaturedListings() {
       configurations(*)
     `)
     .order('createdAt', { ascending: false })
-    .limit(3);
+    .limit(6);
 
   const featured = (rawProjects || []).map(p => {
     const sortedImages = [...(p.images || [])].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -85,90 +88,34 @@ async function DynamicFeaturedListings() {
 
   if (featured.length === 0) return null;
 
-  return (
-    <section className="bg-background pt-2 pb-20 md:pt-4 md:pb-28">
-      <div className="max-w-7xl mx-auto px-5 md:px-8">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-2 font-sans">Hand-picked for you</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-medium">Featured residences</h2>
-          </div>
-          <Link href="/listings" className="hidden md:flex items-center gap-2 text-sm text-primary font-sans font-medium hover:gap-3 transition-all">
-            View all listings <ArrowRight size={13} />
-          </Link>
-        </div>
+  switch (selectedTemplate) {
+    case "2": return <Template2 properties={featured} />;
+    case "3": return <Template3 properties={featured} />;
+    case "4": return <Template4 properties={featured} />;
+    case "5": return <Template5 properties={featured} />;
+    case "6": return <Template6 properties={featured} />;
+    case "1":
+    default:
+      return <Template1 properties={featured} />;
+  }
+}
 
-        <div className="grid md:grid-cols-3 gap-6 group/featured">
-          <Link
-            href={`/projects/${featured[0].id}`}
-            className="md:col-span-2 relative cursor-pointer overflow-hidden bg-muted h-[500px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/20"
-          >
-            {featured[0].images.length > 0 && (
-              <Image 
-                src={featured[0].images[0].url.startsWith('/') ? featured[0].images[0].url : `/${featured[0].images[0].url}`} 
-                alt={featured[0].name} 
-                fill
-                sizes="(max-width: 768px) 100vw, 66vw"
-                priority={true}
-                className="object-cover transition-transform duration-1000 ease-out hover:scale-110" 
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-            <div className="absolute top-5 left-5"><StatusBadge status={featured[0].derivedStatus} /></div>
-            <div className="absolute bottom-0 left-0 right-0 p-8 transform transition-transform duration-500 hover:-translate-y-2">
-              <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1.5 font-sans">{featured[0].location}, {featured[0].city}</p>
-              <h3 className="font-serif text-3xl text-white font-medium mb-3 drop-shadow-md">{featured[0].name}</h3>
-              <div className="flex items-center justify-between">
-                <span className="text-[#B59E7E] font-serif text-2xl drop-shadow-md">{featured[0].priceText}</span>
-                <span className="text-white/70 text-xs font-sans bg-black/30 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">{featured[0].minBhk ? `${featured[0].minBhk} BHK` : ''}</span>
-              </div>
-            </div>
-          </Link>
+async function DynamicNeighborhoodCarousel() {
+  const cookieStore = await cookies();
+  const selectedTemplate = cookieStore.get("selected_neighborhood_template")?.value || "1";
 
-          <div className="flex flex-col gap-6">
-            {featured.slice(1, 3).map((p, index) => (
-              <Link
-                key={p.id}
-                href={`/projects/${p.id}`}
-                className="relative cursor-pointer overflow-hidden bg-muted flex-1 min-h-[238px] block rounded-3xl group-hover/featured:opacity-40 hover:!opacity-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/15"
-              >
-                {p.images.length > 0 && (
-                  <Image 
-                    src={p.images[0].url.startsWith('/') ? p.images[0].url : `/${p.images[0].url}`} 
-                    alt={p.name} 
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    priority={index === 0}
-                    className="object-cover transition-transform duration-1000 ease-out hover:scale-110" 
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute top-4 left-4"><StatusBadge status={p.derivedStatus} /></div>
-                <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-500 hover:-translate-y-1">
-                  <p className="text-white/70 text-[10px] tracking-[0.3em] uppercase mb-1 font-sans">{p.location}</p>
-                  <h3 className="font-serif text-xl text-white font-medium drop-shadow-md">{p.name}</h3>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-[#B59E7E] font-serif text-lg drop-shadow-md">{p.priceText}</span>
-                    <span className="text-white/70 text-[10px] font-sans bg-black/30 px-2 py-0.5 rounded-full backdrop-blur-md border border-white/10">{p.minBhk ? `${p.minBhk} BHK` : ''}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+  switch (selectedTemplate) {
+    case "2": return <NeighborhoodTemplate2 neighborhoods={NEIGHBORHOODS} />;
+    case "3": return <NeighborhoodTemplate3 neighborhoods={NEIGHBORHOODS} />;
+    case "4": return <NeighborhoodTemplate4 neighborhoods={NEIGHBORHOODS} />;
+    case "5": return <NeighborhoodTemplate5 neighborhoods={NEIGHBORHOODS} />;
+    case "1":
+    default:
+      return <NeighborhoodTemplate1 neighborhoods={NEIGHBORHOODS} />;
+  }
 }
 
 export default function Home() {
-  const NEIGHBORHOODS = [
-    { name: "Worli", tagline: "Sea-facing skyline", count: 28, image: "https://images.unsplash.com/photo-1679249010086-b8a932c8cafc?w=600&h=800&fit=crop&auto=format" },
-    { name: "Malabar Hill", tagline: "Legacy addresses", count: 14, image: "https://images.unsplash.com/photo-1750758605895-34f909ca82ce?w=600&h=800&fit=crop&auto=format" },
-    { name: "Cuffe Parade", tagline: "The original prestige", count: 19, image: "https://images.unsplash.com/photo-1710582308582-55cc0c461c4e?w=600&h=800&fit=crop&auto=format" },
-    { name: "Breach Candy", tagline: "Quiet exclusivity", count: 11, image: "https://images.unsplash.com/photo-1750758606030-3b200b20b963?w=600&h=800&fit=crop&auto=format" },
-  ];
-
   const CATEGORIES = [
     { id: "under-development", label: "Under Development", count: 32, icon: <Building2 size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "Early-access pricing on tomorrow's finest addresses" },
     { id: "ready-to-move", label: "Ready to Move", count: 18, icon: <Key size={24} className="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />, description: "Move in immediately — no waiting, no uncertainty" },
@@ -194,40 +141,7 @@ export default function Home() {
         <DynamicHomeSearchBar />
       </Suspense>
 
-      {/* Category tiles */}
-      <section className="bg-background relative pt-4 pb-8 md:pb-12">
-        <div className="absolute inset-0 bg-muted/40 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-5 md:px-8 relative z-10">
-          <div className="mb-8 text-center">
-            <p className="text-[11px] tracking-[0.25em] uppercase text-primary/70 mb-2 font-sans font-semibold">Browse by type</p>
-            <h2 className="font-serif text-3xl md:text-5xl text-foreground font-medium tracking-tight">Every kind of<br />South Mumbai home</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CATEGORIES.map((cat, idx) => (
-              <FadeIn key={cat.id} delay={0.1 * idx}>
-                <Link
-                  href="/listings"
-                  className="group relative h-full bg-white/5 dark:bg-black/20 backdrop-blur-md border border-border/60 p-8 rounded-3xl text-left hover:bg-card hover:border-primary/30 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden block"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                  
-                  <div className="relative z-10 flex flex-col h-full">
-                    {cat.icon}
-                    <div className="font-serif text-4xl font-medium mb-1 text-foreground transition-colors">{cat.count}</div>
-                    <div className="text-[10px] tracking-[0.2em] uppercase text-muted-foreground group-hover:text-primary/70 mb-5 font-sans font-semibold transition-colors">Properties</div>
-                    <h3 className="font-serif text-xl font-medium mb-3 leading-snug group-hover:text-primary transition-colors">{cat.label}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed flex-grow">{cat.description}</p>
-                    
-                    <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-primary transition-all duration-300 opacity-0 transform -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0">
-                      Browse Collection <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </div>
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* Featured listings with Suspense */}
       <Suspense fallback={
@@ -246,26 +160,18 @@ export default function Home() {
       </Suspense>
 
       {/* Neighborhoods */}
-      <section className="bg-primary py-20 md:py-28">
+      <section className="bg-primary py-10 md:py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-4 md:mb-6">
             <div>
               <p className="text-[10px] tracking-[0.3em] uppercase text-primary-foreground/35 mb-2 font-sans">Explore by location</p>
               <h2 className="font-serif text-3xl md:text-4xl text-primary-foreground font-medium">South Mumbai's<br />finest postcodes</h2>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:flex md:flex-row gap-3 md:h-[400px]">
-            {NEIGHBORHOODS.map((n) => (
-              <Link key={n.name} href="/listings" className="group relative overflow-hidden h-56 md:h-full md:flex-1 md:hover:[flex:2_2_0%] transition-all duration-500 ease-out bg-primary-foreground/10 block rounded-2xl">
-                <Image src={n.image} alt={n.name} fill sizes="(max-width: 768px) 50vw, 25vw" className="absolute inset-0 object-cover opacity-45 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-left transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <h3 className="font-serif text-2xl text-white font-medium">{n.name}</h3>
-                  <p className="text-white/70 text-sm mt-1 font-sans opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">{n.tagline}</p>
-                  <p className="text-[#B59E7E] text-sm mt-3 font-sans font-medium">{n.count} properties</p>
-                </div>
-              </Link>
-            ))}
+          <div className="mt-4 mb-4 md:mb-8">
+            <Suspense fallback={<div className="w-full h-[400px] md:h-[480px] bg-muted animate-pulse rounded-[2rem] mt-4 md:mt-8"></div>}>
+              <DynamicNeighborhoodCarousel />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -300,14 +206,15 @@ export default function Home() {
               </div>
               <Link
                 href="/contact"
-                className="mt-8 bg-primary text-primary-foreground px-6 py-3 text-sm font-sans font-medium tracking-wide hover:bg-primary/90 transition-colors inline-flex items-center gap-2 rounded-lg"
+                className="mt-8 bg-primary text-primary-foreground px-6 py-3 text-sm font-sans font-medium tracking-wide hover:bg-primary/90 transition-colors inline-flex items-center gap-2 rounded-lg focus:outline-none focus:ring-4 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+                aria-label="Talk to a consultant"
               >
-                Talk to a consultant <ArrowRight size={13} />
+                Talk to a consultant <ArrowRight size={13} aria-hidden="true" />
               </Link>
             </FadeIn>
 
             <div className="relative">
-              <div className="aspect-[4/5] overflow-hidden bg-muted">
+              <div className="relative aspect-[4/5] overflow-hidden bg-muted">
                 <Image
                   src="https://images.unsplash.com/photo-1758193431355-54df41421657?w=800&h=1000&fit=crop&auto=format"
                   alt="Premium South Mumbai building"

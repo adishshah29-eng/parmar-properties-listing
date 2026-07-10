@@ -2,7 +2,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
+import { requireAuth } from "@/lib/auth/server-actions";
+
 export async function updateSettings(whatsappNumber: string) {
+  try {
+    await requireAuth();
+  } catch (err: any) {
+    throw new Error('Unauthorized');
+  }
+
   const supabase = await createClient();
   try {
     const { data: existing, error: fetchError } = await supabase.from('site_settings').select('id').limit(1).maybeSingle();

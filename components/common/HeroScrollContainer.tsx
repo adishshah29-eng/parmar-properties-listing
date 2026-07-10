@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useMemo } from "react";
-import { useScroll, motion, useTransform, MotionValue, useSpring, useMotionValueEvent } from "framer-motion";
+import React, { useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { HeroScrollAnimation } from "./HeroScrollAnimation";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const BLOCKS = [
   {
@@ -23,269 +27,132 @@ const BLOCKS = [
   }
 ];
 
-function ScrollWord({ 
-  word, 
-  wordGlobalCharOffset,
-  start,
-  fadeInEnd,
-  fadeOutStart,
-  end,
-  isLast,
-  baseStagger = 0.002,
-  scrollYProgress 
-}: { 
-  word: string; 
-  wordGlobalCharOffset: number;
-  start: number;
-  fadeInEnd: number;
-  fadeOutStart: number;
-  end: number;
-  isLast: boolean;
-  baseStagger?: number;
-  scrollYProgress: MotionValue<number>;
-}) {
-  const wordStart = start + wordGlobalCharOffset * baseStagger;
-  const wordFadeInEnd = fadeInEnd + wordGlobalCharOffset * baseStagger;
-  const wordFadeOutStart = fadeOutStart + wordGlobalCharOffset * (baseStagger * 0.5);
-  const wordEnd = end + wordGlobalCharOffset * (baseStagger * 0.5);
-
-  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
-  const t1 = clamp(wordStart, 0, 1);
-  const t2 = clamp(wordFadeInEnd, t1, 1);
-  const t3 = clamp(wordFadeOutStart, t2, 1);
-  const t4 = clamp(wordEnd, t3, 1);
-  
-  const inputRange = [t1, t2, t3, t4];
-
-  const y = useTransform(
-    scrollYProgress,
-    inputRange,
-    [20, 0, 0, isLast ? 0 : -20]
-  );
-  
-  const scale = useTransform(
-    scrollYProgress,
-    inputRange,
-    [0.95, 1, 1, isLast ? 1 : 0.95]
-  );
-
-  const opacity = useTransform(
-    scrollYProgress,
-    inputRange,
-    [0, 1, 1, isLast ? 1 : 0]
-  );
-
-  return (
-    <span className="inline-block pb-4 -mb-4 align-top mr-[0.25em]">
-      <motion.span 
-        style={{ 
-          y, 
-          scale,
-          opacity, 
-          display: "inline-block",
-          willChange: "transform, opacity"
-        }}
-      >
-        {word}
-      </motion.span>
-    </span>
-  );
-}
-
-function ScrollContentBlockItem({ 
-  block, 
-  index, 
-  totalBlocks, 
-  scrollYProgress 
-}: { 
-  block: { title: string; subtitle: string }; 
-  index: number; 
-  totalBlocks: number; 
-  scrollYProgress: MotionValue<number>;
-}) {
-  const segment = 1 / totalBlocks;
-  const start = index * segment;
-  const end = start + segment;
-  
-  // Culling bounds with 10% segment hysteresis margin
-  const margin = segment * 0.1;
-  const visibleStart = start - segment - margin;
-  const visibleEnd = end + segment + margin;
-  
-  const [isNear, setIsNear] = useState(() => {
-    const initial = scrollYProgress.get();
-    return initial >= visibleStart && initial <= visibleEnd;
-  });
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const near = latest >= visibleStart && latest <= visibleEnd;
-    if (near !== isNear) setIsNear(near);
-  });
-
-  // Timings
-  const fadeInEnd = start + segment * 0.2;
-  const fadeOutStart = end - segment * 0.2;
-  const isLast = index === totalBlocks - 1;
-
-  // Overall opacity for smooth edges
-  const opacityOut = isLast ? 1 : 0;
-  const opacity = useTransform(
-    scrollYProgress,
-    [start, start + segment * 0.05, fadeOutStart, end],
-    [0, 1, 1, opacityOut]
-  );
-
-  const titleWords = useMemo(() => {
-    let titleCharCount = 0;
-    return block.title.split(" ").map(word => {
-      const offset = titleCharCount;
-      titleCharCount += word.length;
-      return { word, offset };
-    });
-  }, [block.title]);
-
-  const subtitleWords = useMemo(() => {
-    let titleChars = block.title.replace(/ /g, "").length;
-    let subtitleCharCount = titleChars * 0.35;
-    return block.subtitle.split(" ").map(word => {
-      const offset = subtitleCharCount;
-      subtitleCharCount += word.length;
-      return { word, offset };
-    });
-  }, [block.title, block.subtitle]);
-
-  const isEven = index % 2 === 0;
-
-  if (!isNear) return null;
-
-  return (
-    <motion.div
-      style={{ opacity }}
-      className={`absolute flex flex-col px-6 md:px-12 w-full max-w-7xl ${isEven ? 'items-start text-left' : 'items-end text-right'}`}
-    >
-      {/* Title */}
-      <div className="mb-4">
-        <h2 
-          className={`font-serif text-4xl md:text-6xl lg:text-7xl text-white font-medium leading-tight flex flex-wrap gap-y-2 ${isEven ? 'justify-start' : 'justify-end'}`}
-          style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
-        >
-          {titleWords.map((item, wIndex) => (
-            <ScrollWord 
-              key={wIndex}
-              word={item.word}
-              wordGlobalCharOffset={item.offset}
-              start={start}
-              fadeInEnd={fadeInEnd}
-              fadeOutStart={fadeOutStart}
-              end={end}
-              isLast={isLast}
-              baseStagger={0.002}
-              scrollYProgress={scrollYProgress}
-            />
-          ))}
-        </h2>
-      </div>
-      
-      {/* Spacer */}
-      <div className="h-4" />
-
-      {/* Subtitle */}
-      <div>
-        <p 
-          className={`font-sans text-sm md:text-xl text-[#b59e7e] tracking-[0.05em] font-medium flex flex-wrap gap-y-1 ${isEven ? 'justify-start' : 'justify-end'}`}
-          style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
-        >
-          {subtitleWords.map((item, wIndex) => (
-            <ScrollWord 
-              key={wIndex}
-              word={item.word}
-              wordGlobalCharOffset={item.offset}
-              start={start}
-              fadeInEnd={fadeInEnd}
-              fadeOutStart={fadeOutStart}
-              end={end}
-              isLast={isLast}
-              baseStagger={0.0015}
-              scrollYProgress={scrollYProgress}
-            />
-          ))}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-function ScrollContentLayer({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
-  const layerRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const node = layerRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setVisible(entry.isIntersecting);
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={layerRef} className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-      {visible && BLOCKS.map((block, index) => (
-        <ScrollContentBlockItem
-          key={index}
-          block={block}
-          index={index}
-          totalBlocks={BLOCKS.length}
-          scrollYProgress={scrollYProgress}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function HeroScrollContainer({ children }: { children?: React.ReactNode }) {
   const containerRef = useRef<HTMLElement>(null);
-  
-  // Get raw scroll progress
-  const { scrollYProgress: rawProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const textLayerRef = useRef<HTMLDivElement>(null);
 
-  // Apply a spring physics smoothing to the scroll progress
-  // This removes any jerky mouse-wheel or trackpad movements and makes everything buttery smooth
-  const scrollYProgress = useSpring(rawProgress, {
-    stiffness: 50,
-    damping: 15,
-    mass: 0.1,
-    restDelta: 0.001
-  });
+  useGSAP(() => {
+    if (!containerRef.current || !textLayerRef.current) return;
 
-  // Scale down and dock effect at the very end of the scroll
-  const scale = useTransform(scrollYProgress, [0.85, 1], [1, 0.95]);
-  const borderRadius = useTransform(scrollYProgress, [0.85, 1], ["0px", "32px"]);
+    // 1. Scale/dock effect for the sticky container at the very end of scroll
+    gsap.fromTo(".sticky-wrapper", 
+      { scale: 1, borderRadius: "0px" },
+      { 
+        scale: 0.95, 
+        borderRadius: "32px",
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "85% bottom",
+          end: "bottom bottom",
+          scrub: true,
+        }
+      }
+    );
+
+    // 2. The Text Blocks Timeline
+    const blocks = gsap.utils.toArray<HTMLElement>('.text-block');
+    
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1, // Smooth scrub
+      }
+    });
+
+    blocks.forEach((block, i) => {
+      const words = block.querySelectorAll('.word');
+      const isLast = i === blocks.length - 1;
+
+      // Block fade in
+      tl.fromTo(words, 
+        { opacity: 0, y: 20, scale: 0.95 }, 
+        { 
+          opacity: 1, 
+          y: 0, 
+          scale: 1, 
+          duration: 1, 
+          stagger: 0.05, 
+          ease: "power2.out" 
+        }, 
+        i === 0 ? 0 : "-=0.5" // overlap with previous block
+      );
+
+      // Block fade out (except the last block which stays visible)
+      if (!isLast) {
+        tl.to(words, 
+          { 
+            opacity: 0, 
+            y: -20, 
+            scale: 0.95, 
+            duration: 1, 
+            stagger: 0.05, 
+            ease: "power2.in" 
+          }, 
+          "+=0.8" // Hold duration before fading out
+        );
+      }
+    });
+
+  }, { scope: containerRef });
 
   return (
     <section ref={containerRef} className="relative h-[300vh] bg-[#000000]">
-      <motion.div 
-        style={{ scale, borderRadius }}
-        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end transform-gpu"
+      <div 
+        className="sticky-wrapper sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-end origin-bottom"
       >
-        <HeroScrollAnimation scrollYProgress={scrollYProgress} totalFrames={240} />
+        <HeroScrollAnimation totalFrames={240} />
         
-        {/* Cinematic Film Grain Overlay (Option 3) */}
+        {/* Cinematic Film Grain Overlay */}
         <div className="absolute inset-0 bg-noise z-10" />
-        
         <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/60 via-[#000000]/10 to-transparent pointer-events-none z-10" />
         
-        <ScrollContentLayer scrollYProgress={scrollYProgress} />
+        {/* Text Layer */}
+        <div ref={textLayerRef} className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+          {BLOCKS.map((block, index) => {
+            const isEven = index % 2 === 0;
+            return (
+              <div
+                key={index}
+                className={`text-block absolute flex flex-col px-6 md:px-12 w-full max-w-7xl ${isEven ? 'items-start text-left' : 'items-end text-right'}`}
+              >
+                <div className="mb-4">
+                  <h2 
+                    className={`font-serif text-4xl md:text-6xl lg:text-7xl text-white font-medium leading-tight flex flex-wrap gap-y-2 ${isEven ? 'justify-start' : 'justify-end'}`}
+                    style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    {block.title.split(" ").map((word, wIndex) => (
+                      <span key={wIndex} className="inline-block pb-4 -mb-4 align-top mr-[0.25em]">
+                        <span className="word inline-block opacity-0">{word}</span>
+                      </span>
+                    ))}
+                  </h2>
+                </div>
+                <div className="h-4" />
+                <div>
+                  <p 
+                    className={`font-sans text-sm md:text-xl text-[#b59e7e] tracking-[0.05em] font-medium flex flex-wrap gap-y-1 ${isEven ? 'justify-start' : 'justify-end'}`}
+                    style={{ textShadow: "0 2px 24px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.8)" }}
+                  >
+                    {block.subtitle.split(" ").map((word, wIndex) => (
+                      <span key={wIndex} className="inline-block pb-4 -mb-4 align-top mr-[0.25em]">
+                        <span className="word inline-block opacity-0">{word}</span>
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
         
         {/* The content children that overlay on top of the animation */}
         <div className="relative z-30 w-full pointer-events-auto">
           {children}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

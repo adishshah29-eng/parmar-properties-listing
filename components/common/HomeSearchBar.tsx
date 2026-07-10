@@ -2,28 +2,39 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, Building2, Activity } from "lucide-react";
+import { Search, MapPin, Building2, IndianRupee } from "lucide-react";
 
 interface HomeSearchBarProps {
-  cities: string[];
-  developers: string[];
+  locations: string[];
 }
 
-export function HomeSearchBar({ cities, developers }: HomeSearchBarProps) {
+export function HomeSearchBar({ locations }: HomeSearchBarProps) {
   const router = useRouter();
-  const [city, setCity] = useState("All");
-  const [developer, setDeveloper] = useState("All");
-  const [status, setStatus] = useState("All");
+  const [location, setLocation] = useState("All");
+  const [bhk, setBhk] = useState("All");
+  const [price, setPrice] = useState("All");
 
-  const statuses = ["All", "Available", "Booked", "On Hold", "Sold Out"];
+  const configurations = ["All", "1", "2", "3", "4", "5"];
+  const priceRanges = [
+    { label: "All", value: "All" },
+    { label: "Under ₹1 Cr", value: "0-10000000" },
+    { label: "₹1 Cr - ₹3 Cr", value: "10000000-30000000" },
+    { label: "₹3 Cr - ₹5 Cr", value: "30000000-50000000" },
+    { label: "₹5 Cr - ₹10 Cr", value: "50000000-100000000" },
+    { label: "Above ₹10 Cr", value: "100000000-9999999999" },
+  ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
     const params = new URLSearchParams();
-    if (city !== "All") params.set("city", city);
-    if (developer !== "All") params.set("developer", developer);
-    if (status !== "All") params.set("status", status);
+    if (location !== "All") params.set("location", location);
+    if (bhk !== "All") params.set("bhk", bhk);
+    if (price !== "All") {
+      const [min, max] = price.split("-");
+      if (min && min !== "0") params.set("minPrice", min);
+      if (max && max !== "9999999999") params.set("maxPrice", max);
+    }
     
     router.push(`/listings?${params.toString()}`);
   };
@@ -41,12 +52,12 @@ export function HomeSearchBar({ cities, developers }: HomeSearchBarProps) {
             <div className="relative group">
               <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60 group-hover:text-primary transition-colors pointer-events-none" size={18} />
               <select 
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className="w-full h-14 pr-4 bg-background/50 border border-border/60 rounded-2xl text-sm font-medium appearance-none focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer hover:bg-background/80"
                 style={{ paddingLeft: "3.5rem" }}
               >
-                {cities.map((c) => (
+                {locations.map((c) => (
                   <option key={c} value={c}>{c === "All" ? "Any Location" : c}</option>
                 ))}
               </select>
@@ -54,34 +65,34 @@ export function HomeSearchBar({ cities, developers }: HomeSearchBarProps) {
           </div>
 
           <div className="flex-1 w-full relative">
-            <label className="text-[11px] tracking-[0.15em] uppercase text-muted-foreground mb-2.5 block font-sans font-semibold ml-2">Developer</label>
+            <label className="text-[11px] tracking-[0.15em] uppercase text-muted-foreground mb-2.5 block font-sans font-semibold ml-2">Configuration</label>
             <div className="relative group">
               <Building2 className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60 group-hover:text-primary transition-colors pointer-events-none" size={18} />
               <select 
-                value={developer}
-                onChange={(e) => setDeveloper(e.target.value)}
+                value={bhk}
+                onChange={(e) => setBhk(e.target.value)}
                 className="w-full h-14 pr-4 bg-background/50 border border-border/60 rounded-2xl text-sm font-medium appearance-none focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer hover:bg-background/80"
                 style={{ paddingLeft: "3.5rem" }}
               >
-                {developers.map((d) => (
-                  <option key={d} value={d}>{d === "All" ? "Any Developer" : d}</option>
+                {configurations.map((c) => (
+                  <option key={c} value={c}>{c === "All" ? "Any Configuration" : c === "5" ? "5+ BHK" : `${c} BHK`}</option>
                 ))}
               </select>
             </div>
           </div>
 
           <div className="flex-1 w-full relative">
-            <label className="text-[11px] tracking-[0.15em] uppercase text-muted-foreground mb-2.5 block font-sans font-semibold ml-2">Status</label>
+            <label className="text-[11px] tracking-[0.15em] uppercase text-muted-foreground mb-2.5 block font-sans font-semibold ml-2">Price Range</label>
             <div className="relative group">
-              <Activity className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60 group-hover:text-primary transition-colors pointer-events-none" size={18} />
+              <IndianRupee className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60 group-hover:text-primary transition-colors pointer-events-none" size={18} />
               <select 
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
                 className="w-full h-14 pr-4 bg-background/50 border border-border/60 rounded-2xl text-sm font-medium appearance-none focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer hover:bg-background/80"
                 style={{ paddingLeft: "3.5rem" }}
               >
-                {statuses.map((s) => (
-                  <option key={s} value={s}>{s === "All" ? "Any Status" : s}</option>
+                {priceRanges.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
               </select>
             </div>

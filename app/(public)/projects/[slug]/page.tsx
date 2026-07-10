@@ -294,7 +294,12 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                       {firstFloorPlan && (
                         <div className="w-full md:w-[250px] p-6 flex items-center justify-center bg-muted/20">
                            <div className="relative w-full h-[200px] rounded-lg overflow-hidden border border-border shadow-sm">
-                             <Image src={firstFloorPlan.url} alt={firstFloorPlan.label} fill className="object-cover" />
+                             <Image 
+                               src={firstFloorPlan.url.startsWith('http') || firstFloorPlan.url.startsWith('/') ? firstFloorPlan.url : `/${firstFloorPlan.url}`} 
+                               alt={firstFloorPlan.label || 'Floor Plan'} 
+                               fill 
+                               className="object-cover" 
+                             />
                            </div>
                         </div>
                       )}

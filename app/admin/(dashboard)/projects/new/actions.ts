@@ -2,6 +2,64 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth/server-actions";
+import { z } from "zod";
+
+const configSchema = z.object({
+  tempId: z.string(),
+  bhk: z.coerce.number().min(0),
+  variantName: z.string(),
+  carpetArea: z.coerce.number().min(0),
+  pricePerSqft: z.coerce.number().min(0),
+  status: z.string(),
+  possessionDate: z.string().optional().nullable(),
+  reraId: z.string(),
+});
+
+const floorPlanSchema = z.object({
+  configTempId: z.string(),
+  type: z.string(),
+  label: z.string(),
+  url: z.string(),
+});
+
+const inventorySchema = z.object({
+  configTempId: z.string(),
+  unitNumber: z.string(),
+  floor: z.coerce.number(),
+  facing: z.string(),
+  priceOverride: z.coerce.number().nullable(),
+  status: z.string(),
+  notes: z.string(),
+});
+
+const projectImageSchema = z.object({
+  url: z.string(),
+  label: z.string(),
+});
+
+const projectDocumentSchema = z.object({
+  name: z.string(),
+  url: z.string(),
+});
+
+const projectInputSchema = z.object({
+  developerId: z.string().min(1, "Developer ID is required"),
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required"),
+  location: z.string().min(1, "Location is required"),
+  city: z.string().min(1, "City is required"),
+  locality: z.string(),
+  description: z.string(),
+  amenities: z.string(),
+  latitude: z.coerce.number().nullable(),
+  longitude: z.coerce.number().nullable(),
+  images: z.array(projectImageSchema),
+  documents: z.array(projectDocumentSchema),
+  configurations: z.array(configSchema).min(1, "At least one configuration is required."),
+  floorPlans: z.array(floorPlanSchema),
+  inventory: z.array(inventorySchema),
+});
 
 export type ConfigInput = {
   tempId: string;
@@ -78,13 +136,20 @@ export async function createFullProject(data: ProjectInput) {
     inventory,
   } = data;
 
-  if (!developerId || !name || !slug || !location || !city) {
-    throw new Error("Missing required project fields.");
+  try {
+    await requireAuth();
+  } catch (err: any) {
+    throw new Error('Unauthorized');
   }
 
-  if (configurations.length === 0) {
-    throw new Error("At least one configuration is required.");
+  const parsed = projectInputSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0].message);
   }
+  
+  const validatedData = parsed.data;
+  // Overwrite local vars with validated ones (which have coerce applied)
+  Object.assign(data, validatedData);
 
   const supabase = await createClient();
 

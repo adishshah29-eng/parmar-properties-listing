@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 import { z } from 'zod';
+import { requireAuth } from "@/lib/auth/server-actions";
 
 const createDeveloperSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -12,6 +13,12 @@ const createDeveloperSchema = z.object({
 });
 
 export async function createDeveloper(formData: FormData, logoUrl: string | null) {
+  try {
+    await requireAuth();
+  } catch (err: any) {
+    return { error: err.message };
+  }
+
   const parsed = createDeveloperSchema.safeParse({
     name: formData.get("name"),
     website: formData.get("website"),
@@ -19,7 +26,7 @@ export async function createDeveloper(formData: FormData, logoUrl: string | null
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message };
+    return { error: parsed.error.issues[0].message };
   }
 
   const name = parsed.data.name.trim();
